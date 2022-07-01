@@ -32,7 +32,7 @@ const dataregex = new RegExp(
   "gm"
 );
 
-type ParseResult = {
+export type ParseResult = {
   meta: { [key: string]: string };
   data: [number, number][];
 };

@@ -5,9 +5,10 @@ import {
   Setter,
   Show,
   For,
+  onMount,
 } from "solid-js";
 import { Route } from "../App";
-import { fields, parseFile } from "../lib/parse";
+import { fields, parseFile, ParseResult } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -20,16 +21,43 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
   </button>
 );
 
-const View: Component<{ setRoute: Setter<Route>; file: File }> = (props) => {
+const PreView: Component<{ setRoute: Setter<Route>; file: File }> = (props) => {
   const [fileData] = createResource(props.file, async (f) =>
     parseFile(await f.text())
   );
 
-  const [showMeta, setShowMeta] = createSignal(true);
+  return (
+    <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
+      <View setRoute={props.setRoute} fileData={fileData()} />
+    </Show>
+  );
+};
+
+const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
+  props
+) => {
+  const [showMeta, setShowMeta] = createSignal(false);
+
+  let screenRef: HTMLDivElement,
+    topBarRef: HTMLDivElement,
+    mainBoxRef: HTMLDivElement;
+
+  const resize = () => {
+    const wh = screenRef.clientHeight;
+    const bh = topBarRef.clientHeight;
+    console.log(wh, bh);
+    mainBoxRef.style.height = `${wh - bh}px`;
+  };
+
+  onMount(() => {
+    resize();
+  });
+  window.addEventListener("resize", resize);
 
   return (
-    <div class="w-full h-full">
-      <div class="flex flex-row">
+    <div ref={screenRef} class="w-full h-full">
+      {/* top bar */}
+      <div ref={topBarRef} class="flex flex-row">
         <TopButton
           label="Open Another file"
           onclick={() => props.setRoute({ route: "open" })}
@@ -39,28 +67,47 @@ const View: Component<{ setRoute: Setter<Route>; file: File }> = (props) => {
           onclick={() => setShowMeta((v) => !v)}
         />
       </div>
-      <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
-        <Show when={showMeta()}>
-          <div class="w-full flex">
-            <table class="flex-1 m-2">
-              <For each={fields}>
-                {(fd) => (
-                  <tr>
-                    <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100">
-                      {fd}
-                    </td>
-                    <td class="border-solid border-1 border-gray-500 px-1 pt-1">
-                      {fileData().meta[fd]}
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </table>
-          </div>
-        </Show>
+      {/* metadata  */}
+      <Show when={showMeta()}>
+        <div class="w-full flex-row absolute">
+          <table class="flex-1 m-2 bg-white shadow-md">
+            <For each={fields}>
+              {(fd) => (
+                <tr>
+                  <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100">
+                    {fd}
+                  </td>
+                  <td class="border-solid border-1 border-gray-500 px-1 pt-1">
+                    {props.fileData.meta[fd]}
+                  </td>
+                </tr>
+              )}
+            </For>
+          </table>
+        </div>
       </Show>
+      {/* otherdata */}
+      <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
+        <div class="overflow-scroll">
+          <table>
+            <For each={props.fileData.data}>
+              {([x, y]) => (
+                <tr>
+                  <td class="border-1 border-gray-400 p-1 pr-2 text-right">
+                    {x.toFixed(5)}
+                  </td>
+                  <td class="border-1 border-gray-400 p-1 pr-2 text-right">
+                    {y.toFixed(5)}
+                  </td>
+                </tr>
+              )}
+            </For>
+          </table>
+        </div>
+        <div class="flex-1">amogus</div>
+      </div>
     </div>
   );
 };
 
-export default View;
+export default PreView;
