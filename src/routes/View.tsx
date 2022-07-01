@@ -6,15 +6,17 @@ import {
   Show,
   For,
   onMount,
+  createMemo,
 } from "solid-js";
 import { Route } from "../App";
 import { fields, parseFile, ParseResult } from "../lib/parse";
+import Plotly from "plotly.js-dist";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
 ) => (
   <button
-    class="px-2 pt-1 hover:bg-gray-100 hover:shadow-md"
+    class="px-2 pt-1 border-1 hover:bg-green-100 hover:shadow-md"
     onclick={props.onclick}
   >
     {props.label}
@@ -37,6 +39,11 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
   props
 ) => {
   const [showMeta, setShowMeta] = createSignal(false);
+  const xymemo = createMemo(() => {
+    const x = props.fileData.data.map((v) => v[0]);
+    const y = props.fileData.data.map((v) => v[1]);
+    return [x, y];
+  });
 
   let screenRef: HTMLDivElement,
     topBarRef: HTMLDivElement,
@@ -45,19 +52,21 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
   const resize = () => {
     const wh = screenRef.clientHeight;
     const bh = topBarRef.clientHeight;
-    console.log(wh, bh);
     mainBoxRef.style.height = `${wh - bh}px`;
   };
 
   onMount(() => {
     resize();
+
+    const [x, y] = xymemo();
+    Plotly.newPlot("plot", [{ x, y, type: "scatter" }]);
   });
   window.addEventListener("resize", resize);
 
   return (
     <div ref={screenRef} class="w-full h-full">
       {/* top bar */}
-      <div ref={topBarRef} class="flex flex-row">
+      <div ref={topBarRef} class="flex flex-row px-1 pb-1 space-x-1">
         <TopButton
           label="Open Another file"
           onclick={() => props.setRoute({ route: "open" })}
@@ -69,7 +78,7 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
       </div>
       {/* metadata  */}
       <Show when={showMeta()}>
-        <div class="w-full flex-row absolute">
+        <div class="w-full flex flex-row z-5 absolute">
           <table class="flex-1 m-2 bg-white shadow-md">
             <For each={fields}>
               {(fd) => (
@@ -88,7 +97,7 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
       </Show>
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
-        <div class="overflow-scroll">
+        <div class="overflow-scroll border-1 border-gray-400">
           <table>
             <For each={props.fileData.data}>
               {([x, y]) => (
@@ -104,7 +113,7 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
             </For>
           </table>
         </div>
-        <div class="flex-1">amogus</div>
+        <div id="plot" class="flex-1"></div>
       </div>
     </div>
   );

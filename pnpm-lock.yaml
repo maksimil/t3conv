@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  plotly.js-dist: ^2.12.1
   solid-js: ^1.4.2
   typescript: ^4.6.4
   vite: ^2.9.9
@@ -8,6 +9,7 @@ specifiers:
   vite-plugin-windicss: ^1.8.4
 
 dependencies:
+  plotly.js-dist: 2.12.1
   solid-js: 1.4.2
 
 devDependencies:
@@ -883,6 +885,10 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
     dev: true
+
+  /plotly.js-dist/2.12.1:
+    resolution: {integrity: sha512-u3NumBhoNQw5fyr5sfK0jTIa4v1WwruAs0y5bSk055rKklFtyUgwwVZ8VEKCiWqfuPX7OPS3mE4PqvgP4mATOA==}
+    dev: false
 
   /postcss/8.4.14:
     resolution: {integrity: sha512-E398TUmfAYFPBSdzgeieK2Y1+1cpdxJx8yXbK/m57nRhKSmk1GB2tO4lbLBtlkfPQTDKfe4Xqv1ASWPpayPEig==}

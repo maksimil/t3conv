@@ -28,7 +28,7 @@ const metaregex = new RegExp(
 );
 
 const dataregex = new RegExp(
-  "([-\\.0123456789]*) \\t ([-\\.0123456789]*)",
+  "^\\s*([-\\.0123456789]+)\\s*([-\\.0123456789]+)\\s*$",
   "gm"
 );
 
@@ -38,6 +38,7 @@ export type ParseResult = {
 };
 
 export const parseFile = (source: string): ParseResult | null => {
+  console.log(source);
   let meta = {};
 
   const metamatch = [...source.matchAll(metaregex)][0];
@@ -56,9 +57,14 @@ export const parseFile = (source: string): ParseResult | null => {
     return null;
   }
 
-  const data = datamatch.map(
-    (m) => [parseFloat(m[1]), parseFloat(m[2])] as [number, number]
-  );
+  const data = datamatch.map((m) => {
+    console.log(m[1], m[2]);
+    return [parseFloat(m[1].trim()), parseFloat(m[2].trim())] as [
+      number,
+      number
+    ];
+  });
+  console.log(data);
 
   return { meta, data };
 };

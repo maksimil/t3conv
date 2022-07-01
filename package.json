@@ -15,6 +15,7 @@
     "vite-plugin-windicss": "^1.8.4"
   },
   "dependencies": {
+    "plotly.js-dist": "^2.12.1",
     "solid-js": "^1.4.2"
   }
 }
