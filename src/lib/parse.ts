@@ -38,7 +38,6 @@ export type ParseResult = {
 };
 
 export const parseFile = (source: string): ParseResult | null => {
-  console.log(source);
   let meta = {};
 
   const metamatch = [...source.matchAll(metaregex)][0];
@@ -58,13 +57,11 @@ export const parseFile = (source: string): ParseResult | null => {
   }
 
   const data = datamatch.map((m) => {
-    console.log(m[1], m[2]);
     return [parseFloat(m[1].trim()), parseFloat(m[2].trim())] as [
       number,
       number
     ];
   });
-  console.log(data);
 
   return { meta, data };
 };

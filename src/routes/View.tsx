@@ -39,6 +39,7 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
   props
 ) => {
   const [showMeta, setShowMeta] = createSignal(false);
+
   const xymemo = createMemo(() => {
     const x = props.fileData.data.map((v) => v[0]);
     const y = props.fileData.data.map((v) => v[1]);
@@ -59,7 +60,22 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
     resize();
 
     const [x, y] = xymemo();
-    Plotly.newPlot("plot", [{ x, y, type: "scatter" }]);
+    const plot = document.getElementById("plot");
+    Plotly.newPlot("plot", [
+      {
+        x,
+        y,
+        type: "scatter",
+        line: { width: 1 },
+        hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
+      },
+    ]);
+    plot.on("plotly_hover", (d) => {
+      console.log(d.points[0].pointIndex);
+    });
+    plot.on("plotly_unhover", (d) => {
+      console.log(d);
+    });
   });
   window.addEventListener("resize", resize);
 
