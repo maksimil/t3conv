@@ -35,6 +35,30 @@ const PreView: Component<{ setRoute: Setter<Route>; file: File }> = (props) => {
   );
 };
 
+const PLOT_LAYOUT = {
+  margin: {
+    l: 100,
+    r: 80,
+    b: 100,
+    t: 40,
+  },
+  showlegend: false,
+  xaxis: {
+    title: "Field(Oe)",
+    exponentformat: "e",
+    linecolor: "black",
+    mirror: true,
+    linewidth: 1,
+  },
+  yaxis: {
+    title: "Moment(emu)",
+    exponentformat: "e",
+    linecolor: "black",
+    mirror: true,
+    linewidth: 1,
+  },
+};
+
 const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
   props
 ) => {
@@ -56,12 +80,9 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
     mainBoxRef.style.height = `${wh - bh}px`;
   };
 
-  onMount(() => {
-    resize();
-
+  const plotData = () => {
     const [x, y] = xymemo();
-    const plot = document.getElementById("plot");
-    Plotly.newPlot("plot", [
+    return [
       {
         x,
         y,
@@ -69,7 +90,16 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
         line: { width: 1 },
         hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
       },
-    ]);
+    ];
+  };
+
+  onMount(() => {
+    resize();
+
+    const plot = document.getElementById("plot");
+
+    Plotly.newPlot("plot", plotData(), PLOT_LAYOUT);
+
     plot.on("plotly_hover", (d) => {
       console.log(d.points[0].pointIndex);
     });
@@ -77,7 +107,11 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
       console.log(d);
     });
   });
-  window.addEventListener("resize", resize);
+
+  window.addEventListener("resize", () => {
+    resize();
+    Plotly.react("plot", plotData(), PLOT_LAYOUT);
+  });
 
   return (
     <div ref={screenRef} class="w-full h-full">
@@ -113,17 +147,15 @@ const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
       </Show>
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
-        <div class="overflow-scroll border-1 border-gray-400">
+        <div class="overflow-y-scroll flex-none border-1 border-gray-400">
           <table>
             <For each={props.fileData.data}>
-              {([x, y]) => (
-                <tr>
-                  <td class="border-1 border-gray-400 p-1 pr-2 text-right">
-                    {x.toFixed(5)}
+              {([x, y], i) => (
+                <tr class="border-b-1 border-gray-400">
+                  <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
+                    {x.toFixed(1)}
                   </td>
-                  <td class="border-1 border-gray-400 p-1 pr-2 text-right">
-                    {y.toFixed(5)}
-                  </td>
+                  <td class="pt-1 px-1 text-right">{y.toFixed(5)}</td>
                 </tr>
               )}
             </For>
