@@ -1,4 +1,5 @@
 import { Component, createSignal, Switch, Match } from "solid-js";
+import { ParseResult } from "./lib/parse";
 import Open from "./routes/Open";
 import View from "./routes/View";
 
@@ -8,7 +9,7 @@ export type Route =
     }
   | {
       route: "view";
-      file: File;
+      data: () => Promise<ParseResult>;
     };
 
 const INITIAL_ROUTE = { route: "open" } as Route;
@@ -21,7 +22,7 @@ const App: Component = () => {
         <Open setRoute={setRoute} />
       </Match>
       <Match when={route().route == "view"}>
-        <View setRoute={setRoute} file={route().file} />
+        <View setRoute={setRoute} data={route().data} />
       </Match>
     </Switch>
   );

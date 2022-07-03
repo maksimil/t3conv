@@ -1,5 +1,6 @@
 import { Component, For, Setter } from "solid-js";
 import { Route } from "../App";
+import { parseFile } from "../lib/parse";
 
 const OpenFile: Component<{ fname: string; onclick: () => void }> = ({
   fname,
@@ -38,7 +39,10 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
             fileSelector.setAttribute("type", "file");
             fileSelector.click();
             fileSelector.onchange = (_) => {
-              props.setRoute({ route: "view", file: fileSelector.files[0] });
+              props.setRoute({
+                route: "view",
+                data: async () => parseFile(await fileSelector.files[0].text()),
+              });
             };
           }}
         >

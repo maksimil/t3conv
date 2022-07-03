@@ -9,8 +9,7 @@ import {
   createMemo,
 } from "solid-js";
 import { Route } from "../App";
-import { fields, parseFile, ParseResult } from "../lib/parse";
-import Plotly from "plotly.js-dist";
+import { fields, ParseResult } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -23,14 +22,19 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
   </button>
 );
 
-const PreView: Component<{ setRoute: Setter<Route>; file: File }> = (props) => {
-  const [fileData] = createResource(props.file, async (f) =>
-    parseFile(await f.text())
-  );
+const PreView: Component<{
+  setRoute: Setter<Route>;
+  data: () => Promise<ParseResult>;
+}> = (props) => {
+  const [fileData] = createResource(props.data);
+  const [plotly] = createResource(async () => import("plotly.js-dist"));
 
   return (
-    <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
-      <View setRoute={props.setRoute} fileData={fileData()} />
+    <Show
+      when={!fileData.loading && !plotly.loading}
+      fallback={<p>Loading...</p>}
+    >
+      <View setRoute={props.setRoute} fileData={fileData()} plotly={plotly()} />
     </Show>
   );
 };
@@ -59,10 +63,14 @@ const PLOT_LAYOUT = {
   },
 };
 
-const View: Component<{ setRoute: Setter<Route>; fileData: ParseResult }> = (
-  props
-) => {
+const View: Component<{
+  setRoute: Setter<Route>;
+  fileData: ParseResult;
+  plotly: any;
+}> = (props) => {
   const [showMeta, setShowMeta] = createSignal(false);
+
+  const Plotly = props.plotly;
 
   const xymemo = createMemo(() => {
     const x = props.fileData.data.map((v) => v[0]);
