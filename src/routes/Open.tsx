@@ -1,6 +1,7 @@
 import { Component, For, Setter } from "solid-js";
 import { Route } from "../App";
 import { parseFile } from "../lib/parse";
+import { addHistory, getHistory } from "../lib/history";
 
 const OpenFile: Component<{ fname: string; onclick: () => void }> = ({
   fname,
@@ -20,6 +21,7 @@ const OpenFile: Component<{ fname: string; onclick: () => void }> = ({
 };
 
 const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
+  console.log(getHistory());
   return (
     <div class="w-full h-full flex items-center justify-center bg-gray-100">
       <div
@@ -41,7 +43,15 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
             fileSelector.onchange = (_) => {
               props.setRoute({
                 route: "view",
-                data: async () => parseFile(await fileSelector.files[0].text()),
+                data: async () => {
+                  const file = fileSelector.files[0];
+
+                  const data = parseFile(await file.text());
+                  const name = file.name;
+
+                  addHistory({ data, name });
+                  return data;
+                },
               });
             };
           }}
@@ -49,8 +59,21 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           Open new file
         </button>
         <div class="flex-1 overflow-scroll space-y-2">
-          <For each={["a", "b", "kljasdf"]}>
-            {(e) => <OpenFile fname={e} onclick={() => console.log(e)} />}
+          <For each={getHistory().reverse()}>
+            {({ name, data }) => (
+              <OpenFile
+                fname={name}
+                onclick={() => {
+                  props.setRoute({
+                    route: "view",
+                    data: async () => {
+                      addHistory({ data, name });
+                      return data;
+                    },
+                  });
+                }}
+              />
+            )}
           </For>
         </div>
       </div>
