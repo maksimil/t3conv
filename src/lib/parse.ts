@@ -35,12 +35,13 @@ const dataregex = new RegExp(
 export type ParseResult = {
   meta: { [key: string]: string };
   data: [number, number][];
+  ty: FileType;
 };
 
 export type FileType = 0 | 1 | 2;
 export const TY_NAMES = ["DCD", "IRM", "Hyst"];
 
-export const parseFile = (source: string): ParseResult | null => {
+export const parseFile = (source: string, ty: FileType): ParseResult | null => {
   let meta = {};
 
   const metamatch = [...source.matchAll(metaregex)][0];
@@ -66,5 +67,58 @@ export const parseFile = (source: string): ParseResult | null => {
     ];
   });
 
-  return { meta, data };
+  return { meta, data, ty };
 };
+
+export const plotData = (source: ParseResult): [number[], number[]][] => {
+  console.log(source);
+  switch (source.ty) {
+    // DCD
+    case 0:
+      return dcdPlotData(source.data);
+    // IRM
+    case 1:
+      return irmPlotData(source.data);
+    // Hyst
+    case 2:
+      return hystPlotData(source.data);
+  }
+};
+
+const dcdPlotData = (data: [number, number][]): [number[], number[]][] => {
+  let n1: [number[], number[]] = [[], []];
+  let n2: [number[], number[]] = [[], []];
+
+  data.slice(1).forEach(([x, y]) => {
+    if (Math.abs(x) < 1) {
+      n1[0].push(x);
+      n1[1].push(y);
+    } else {
+      n2[0].push(x);
+      n2[1].push(y);
+    }
+  });
+
+  return [n1, n2];
+};
+
+const irmPlotData = (data: [number, number][]): [number[], number[]][] => {
+  let n1: [number[], number[]] = [[], []];
+  let n2: [number[], number[]] = [[], []];
+
+  data.forEach(([x, y]) => {
+    if (Math.abs(x) < 1) {
+      n1[0].push(x);
+      n1[1].push(y);
+    } else {
+      n2[0].push(x);
+      n2[1].push(y);
+    }
+  });
+
+  return [n1, n2];
+};
+
+const hystPlotData = (data: [number, number][]): [number[], number[]][] => [
+  [data.map((v) => v[0]), data.map((v) => v[1])],
+];

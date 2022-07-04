@@ -16,7 +16,7 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
     <button
       class={
         "w-full text-md text-left p-2 pr-5 " +
-        "bg-white shadow-sm hover:shadow-md rounded-xl " +
+        "shadow-sm hover:shadow-md rounded-xl " +
         TY_STYLES[props.item.ty] +
         "flex flex-row"
       }
@@ -56,7 +56,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
                   data: async () => {
                     const file = fileSelector.files[0];
 
-                    const data = parseFile(await file.text());
+                    const data = parseFile(await file.text(), fileType());
                     const name = file.name;
                     const ty = fileType();
 

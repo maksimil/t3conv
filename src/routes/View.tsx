@@ -7,9 +7,10 @@ import {
   For,
   onMount,
   createMemo,
+  createEffect,
 } from "solid-js";
 import { Route } from "../App";
-import { fields, ParseResult } from "../lib/parse";
+import { fields, ParseResult, plotData } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -69,14 +70,27 @@ const View: Component<{
   plotly: any;
 }> = (props) => {
   const [showMeta, setShowMeta] = createSignal(false);
+  const [showTCurve, setShowTCurve] = createSignal(true);
 
   const Plotly = props.plotly;
 
-  const xymemo = createMemo(() => {
-    const x = props.fileData.data.map((v) => v[0]);
-    const y = props.fileData.data.map((v) => v[1]);
-    return [x, y];
-  });
+  const plotDataMemo = createMemo(() =>
+    plotData(props.fileData).map(([x, y]) => ({
+      x,
+      y,
+      type: "scatter",
+      line: { width: 1 },
+      hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
+    }))
+  );
+
+  const getPlotData = () => {
+    if (showTCurve()) {
+      return plotDataMemo();
+    } else {
+      return [plotDataMemo()[0]];
+    }
+  };
 
   let screenRef: HTMLDivElement,
     topBarRef: HTMLDivElement,
@@ -88,37 +102,27 @@ const View: Component<{
     mainBoxRef.style.height = `${wh - bh}px`;
   };
 
-  const plotData = () => {
-    const [x, y] = xymemo();
-    return [
-      {
-        x,
-        y,
-        type: "scatter",
-        line: { width: 1 },
-        hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
-      },
-    ];
-  };
-
   onMount(() => {
     resize();
 
     const plot = document.getElementById("plot");
 
-    Plotly.newPlot("plot", plotData(), PLOT_LAYOUT);
+    Plotly.newPlot("plot", getPlotData(), PLOT_LAYOUT);
 
-    plot.on("plotly_hover", (d) => {
-      console.log(d.points[0].pointIndex);
-    });
-    plot.on("plotly_unhover", (d) => {
-      console.log(d);
-    });
+    /* plot.on("plotly_hover", (d) => {
+     *   console.log(d.points[0].pointIndex);
+     * });
+     * plot.on("plotly_unhover", (d) => {
+     *   console.log(d);
+     * }); */
+  });
+
+  createEffect(() => {
+    Plotly.react("plot", getPlotData(), PLOT_LAYOUT);
   });
 
   window.addEventListener("resize", () => {
     resize();
-    Plotly.react("plot", plotData(), PLOT_LAYOUT);
   });
 
   return (
@@ -133,6 +137,12 @@ const View: Component<{
           label={showMeta() ? "Hide metadata" : "Show metadata"}
           onclick={() => setShowMeta((v) => !v)}
         />
+        <Show when={props.fileData.ty == 0 || props.fileData.ty == 1}>
+          <TopButton
+            label={showTCurve() ? "Hide totalM" : "Show totalM"}
+            onclick={() => setShowTCurve((v) => !v)}
+          />
+        </Show>
       </div>
       {/* metadata  */}
       <Show when={showMeta()}>
