@@ -37,6 +37,9 @@ export type ParseResult = {
   data: [number, number][];
 };
 
+export type FileType = 0 | 1 | 2;
+export const TY_NAMES = ["DCD", "IRM", "Hyst"];
+
 export const parseFile = (source: string): ParseResult | null => {
   let meta = {};
 

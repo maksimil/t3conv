@@ -1,8 +1,9 @@
-import { ParseResult } from "./parse";
+import { ParseResult, FileType } from "./parse";
 
 export type HistoryItem = {
   name: string;
   data: ParseResult;
+  ty: FileType;
 };
 
 const HS_KEY = "history";
