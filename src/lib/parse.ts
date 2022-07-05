@@ -34,7 +34,7 @@ const dataregex = new RegExp(
 
 export type ParseResult = {
   meta: { [key: string]: string };
-  data: [number, number][];
+  data: number[][];
   ty: FileType;
 };
 
@@ -71,9 +71,9 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
     switch (ty) {
       // DCD
       case 0:
-        return cleanDCD(dataRead);
+        return cleanData(dataRead);
       case 1:
-        return cleanIRM(dataRead);
+        return cleanData(dataRead);
       case 2:
         return dataRead;
     }
@@ -84,54 +84,35 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
 
 const isz = (x: number) => Math.abs(x) < 1;
 
-const cleanData = (
-  read: [number, number][],
-  init: number,
-  push: (v: [number, number]) => void
-) => {
-  let i = init;
-  let prev = true;
+const cleanData = (read: [number, number][]): number[][] => {
+  let i = 0;
 
-  while (i < read.length) {
-    if (prev) {
-      if (isz(read[i][0])) {
-        push(read[i]);
-        prev = false;
-      } else {
-        push([null, null]);
-        push(read[i]);
-      }
-    } else {
-      if (!isz(read[i][0])) {
-        push(read[i]);
-        prev = true;
-      }
-    }
-
+  if (!isz(read[0][0])) {
     i += 1;
   }
-};
 
-export const cleanDCD = (read: [number, number][]): [number, number][] => {
   let res = [];
 
-  let i = 0;
-  if (!isz(read[i][0])) {
-    res.push(read[i]);
+  if (isz(read[i][0])) {
+    res.push([read[i][0], read[i][1], read[i][1]]);
     i += 1;
   } else {
-    res.push([null, null]);
+    res.push([0, 0, 0]);
   }
 
-  cleanData(read, i, (v) => res.push(v));
-
-  return res;
-};
-
-export const cleanIRM = (read: [number, number][]): [number, number][] => {
-  let res = [];
-
-  cleanData(read, 0, (v) => res.push(v));
+  while (i < read.length) {
+    if (!isz(read[i][0])) {
+      if (isz(read[i + 1][0])) {
+        res.push([read[i][0], read[i][1], read[i + 1][1]]);
+        i += 2;
+      } else {
+        res.push([read[i][0], read[i][1], null]);
+        i += 1;
+      }
+    } else {
+      i += 2;
+    }
+  }
 
   return res;
 };
@@ -150,40 +131,27 @@ export const plotData = (source: ParseResult): [number[], number[]][] => {
   }
 };
 
-const dcdPlotData = (data: [number, number][]): [number[], number[]][] => {
+const tPlotData = (data: number[][]): [number[], number[]][] => {
   let n1: [number[], number[]] = [[], []];
   let n2: [number[], number[]] = [[], []];
 
-  data.slice(1).forEach(([x, y]) => {
-    if (Math.abs(x) < 1) {
-      n1[0].push(x);
-      n1[1].push(y);
-    } else {
+  data.forEach(([x, y1, y2]) => {
+    n1[0].push(x);
+    n1[1].push(y1);
+
+    if (y2 != null) {
       n2[0].push(x);
-      n2[1].push(y);
+      n2[1].push(y2);
     }
   });
 
-  return [n1, n2];
+  return [n2, n1];
 };
 
-const irmPlotData = (data: [number, number][]): [number[], number[]][] => {
-  let n1: [number[], number[]] = [[], []];
-  let n2: [number[], number[]] = [[], []];
+const dcdPlotData = tPlotData;
 
-  data.forEach(([x, y]) => {
-    if (Math.abs(x) < 1) {
-      n1[0].push(x);
-      n1[1].push(y);
-    } else {
-      n2[0].push(x);
-      n2[1].push(y);
-    }
-  });
+const irmPlotData = tPlotData;
 
-  return [n1, n2];
-};
-
-const hystPlotData = (data: [number, number][]): [number[], number[]][] => [
+const hystPlotData = (data: number[][]): [number[], number[]][] => [
   [data.map((v) => v[0]), data.map((v) => v[1])],
 ];

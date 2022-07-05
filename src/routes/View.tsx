@@ -168,27 +168,25 @@ const View: Component<{
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
         <div class="overflow-y-scroll flex-none border-1 border-gray-400">
-          <table>
+          <table class="divide-y divide-gray-400">
             <For each={props.fileData.data}>
-              {([x, y], i) => (
-                <Switch>
-                  <Match when={x != null}>
-                    <tr class="border-b-1 border-gray-400">
-                      <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
-                        {x.toFixed(1)}
-                      </td>
-                      <td class="pt-1 px-1 text-right">{y.toFixed(5)}</td>
-                    </tr>
-                  </Match>
-                  <Match when={x == null}>
-                    <tr class="border-b-1 border-gray-400 bg-red-100">
-                      <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
-                        -
-                      </td>
-                      <td class="pt-1 px-1 text-right">-</td>
-                    </tr>
-                  </Match>
-                </Switch>
+              {(row) => (
+                <tr class="divide-x divide-gray-400">
+                  <For each={row}>
+                    {(x, i) => (
+                      <Switch>
+                        <Match when={x != null}>
+                          <td class="pt-1 px-1 text-right">
+                            {x.toFixed([1, 5, 5][i()])}
+                          </td>
+                        </Match>
+                        <Match when={x == null}>
+                          <td class="bg-red-100 pt-1 px-1 text-right">-</td>
+                        </Match>
+                      </Switch>
+                    )}
+                  </For>
+                </tr>
               )}
             </For>
           </table>

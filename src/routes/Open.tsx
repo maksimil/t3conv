@@ -42,7 +42,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
         <div class="flex flex-row">
           <button
             class={
-              "flex-1 text-xl text-center p-2 " +
+              "flex-1 text-xl text-center p-2 mx-2 " +
               "shadow-sm hover:shadow-md rounded-3xl " +
               "bg-green-50 hover:bg-green-100"
             }
@@ -71,7 +71,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           </button>
           <button
             class={
-              "flex-1 text-xl text-center p-2 " +
+              "flex-1 text-xl text-center p-2 mx-2 " +
               "shadow-sm hover:shadow-md rounded-3xl " +
               TY_STYLES[fileType()]
             }
