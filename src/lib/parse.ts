@@ -60,18 +60,83 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
     return null;
   }
 
-  const data = datamatch.map((m) => {
+  const dataRead = datamatch.map((m) => {
     return [parseFloat(m[1].trim()), parseFloat(m[2].trim())] as [
       number,
       number
     ];
   });
 
+  const data = (() => {
+    switch (ty) {
+      // DCD
+      case 0:
+        return cleanDCD(dataRead);
+      case 1:
+        return cleanIRM(dataRead);
+      case 2:
+        return dataRead;
+    }
+  })();
+
   return { meta, data, ty };
 };
 
+const isz = (x: number) => Math.abs(x) < 1;
+
+const cleanData = (
+  read: [number, number][],
+  init: number,
+  push: (v: [number, number]) => void
+) => {
+  let i = init;
+  let prev = true;
+
+  while (i < read.length) {
+    if (prev) {
+      if (isz(read[i][0])) {
+        push(read[i]);
+        prev = false;
+      } else {
+        push([null, null]);
+        push(read[i]);
+      }
+    } else {
+      if (!isz(read[i][0])) {
+        push(read[i]);
+        prev = true;
+      }
+    }
+
+    i += 1;
+  }
+};
+
+export const cleanDCD = (read: [number, number][]): [number, number][] => {
+  let res = [];
+
+  let i = 0;
+  if (!isz(read[i][0])) {
+    res.push(read[i]);
+    i += 1;
+  } else {
+    res.push([null, null]);
+  }
+
+  cleanData(read, i, (v) => res.push(v));
+
+  return res;
+};
+
+export const cleanIRM = (read: [number, number][]): [number, number][] => {
+  let res = [];
+
+  cleanData(read, 0, (v) => res.push(v));
+
+  return res;
+};
+
 export const plotData = (source: ParseResult): [number[], number[]][] => {
-  console.log(source);
   switch (source.ty) {
     // DCD
     case 0:

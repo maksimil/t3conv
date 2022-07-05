@@ -8,6 +8,8 @@ import {
   onMount,
   createMemo,
   createEffect,
+  Match,
+  Switch,
 } from "solid-js";
 import { Route } from "../App";
 import { fields, ParseResult, plotData } from "../lib/parse";
@@ -169,12 +171,24 @@ const View: Component<{
           <table>
             <For each={props.fileData.data}>
               {([x, y], i) => (
-                <tr class="border-b-1 border-gray-400">
-                  <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
-                    {x.toFixed(1)}
-                  </td>
-                  <td class="pt-1 px-1 text-right">{y.toFixed(5)}</td>
-                </tr>
+                <Switch>
+                  <Match when={x != null}>
+                    <tr class="border-b-1 border-gray-400">
+                      <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
+                        {x.toFixed(1)}
+                      </td>
+                      <td class="pt-1 px-1 text-right">{y.toFixed(5)}</td>
+                    </tr>
+                  </Match>
+                  <Match when={x == null}>
+                    <tr class="border-b-1 border-gray-400 bg-red-100">
+                      <td class="border-r-1 border-gray-400 pt-1 px-1 text-right">
+                        -
+                      </td>
+                      <td class="pt-1 px-1 text-right">-</td>
+                    </tr>
+                  </Match>
+                </Switch>
               )}
             </For>
           </table>
