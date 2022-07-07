@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "gh-build": "vite build --base \"/t3conv/\"",
     "serve": "vite preview"
   },
   "license": "MIT",
