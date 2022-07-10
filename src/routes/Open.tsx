@@ -1,4 +1,4 @@
-import { Component, createSignal, For, Setter } from "solid-js";
+import { Component, createSignal, For, Setter, Switch, Match } from "solid-js";
 import { Route } from "../App";
 import { FileType, parseFile, TY_NAMES } from "../lib/parse";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
@@ -16,7 +16,7 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
     <button
       class={
         "w-full text-md text-left p-2 pr-5 " +
-        "shadow-sm hover:shadow-md rounded-xl " +
+        "shadow-md hover:shadow-lg rounded-xl " +
         TY_STYLES[props.item.ty] +
         "flex flex-row"
       }
@@ -29,7 +29,9 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
 };
 
 const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
-  const [fileType, setFileType] = createSignal(2 as FileType);
+  const [fileType, setFileType] = createSignal(
+    undefined as FileType | undefined
+  );
 
   return (
     <div class="w-full h-full flex items-center justify-center bg-gray-100">
@@ -43,9 +45,12 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           <button
             class={
               "flex-1 text-xl text-center p-2 mx-2 " +
-              "shadow-sm hover:shadow-md rounded-3xl " +
-              "bg-green-50 hover:bg-green-100"
+              "shadow-md rounded-3xl " +
+              (fileType() !== undefined
+                ? "bg-green-50 hover:bg-green-100 hover:shadow-lg "
+                : "bg-gray-100 ")
             }
+            disabled={fileType() === undefined}
             onclick={() => {
               const fileSelector = document.createElement("input");
               fileSelector.setAttribute("type", "file");
@@ -69,18 +74,40 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           >
             Open new file
           </button>
-          <button
-            class={
-              "flex-1 text-xl text-center p-2 mx-2 " +
-              "shadow-sm hover:shadow-md rounded-3xl " +
-              TY_STYLES[fileType()]
-            }
-            onclick={() => setFileType((v) => ((v + 1) % 3) as FileType)}
-          >
-            {TY_NAMES[fileType()]}
-          </button>
+          <Switch>
+            <Match when={fileType() === undefined}>
+              <div class="flex-1 flex flex-row mx-2 space-x-1 ">
+                <For each={[0, 1, 2] as FileType[]}>
+                  {(ty) => (
+                    <button
+                      class={
+                        "flex-1 text-xl text-center py-2 " +
+                        "shadow-md hover:shadow-lg rounded-3xl " +
+                        TY_STYLES[ty]
+                      }
+                      onclick={() => setFileType((_) => ty)}
+                    >
+                      {TY_NAMES[ty]}
+                    </button>
+                  )}
+                </For>
+              </div>
+            </Match>
+            <Match when={fileType() !== undefined}>
+              <button
+                class={
+                  "flex-1 text-xl text-center py-2 mx-2 " +
+                  "shadow-sm hover:shadow-md rounded-3xl " +
+                  TY_STYLES[fileType()]
+                }
+                onclick={() => setFileType((_) => undefined)}
+              >
+                {TY_NAMES[fileType()]}
+              </button>
+            </Match>
+          </Switch>
         </div>
-        <div class="flex-1 overflow-scroll space-y-2">
+        <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
           <For each={getHistory().reverse()}>
             {(item) => (
               <OpenFile
