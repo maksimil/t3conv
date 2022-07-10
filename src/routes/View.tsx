@@ -12,7 +12,7 @@ import {
   Switch,
 } from "solid-js";
 import { Route } from "../App";
-import { fields, ParseResult, plotData } from "../lib/parse";
+import { fields, ParseResult, XUnits, YUnits, plotData } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -24,6 +24,76 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
     {props.label}
   </button>
 );
+
+const ConvertOverlay: Component<{
+  units: [XUnits, YUnits];
+  convert: (u: [XUnits, YUnits]) => void;
+}> = (props) => {
+  const [xUnit, setXUnit] = createSignal(props.units[0] as XUnits);
+  const [yUnit, setYUnit] = createSignal(props.units[1] as YUnits);
+
+  return (
+    <div class="w-full flex flex-row z-5 absolute">
+      <table class="m-2 bg-white shadow-md">
+        <tbody>
+          <tr>
+            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-30">
+              Field
+            </td>
+            <td class="border-solid border-1 border-gray-500 w-20">
+              <select
+                value={xUnit()}
+                class="w-full h-full bg-white cursor-pointer"
+                onchange={(e) => {
+                  setXUnit(
+                    (_) => (e.target as HTMLSelectElement).value as XUnits
+                  );
+                }}
+              >
+                <option value="Oe">Oe</option>
+                <option value="A/m">A/m</option>
+                <option value="T">T</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-30">
+              Momentum
+            </td>
+            <td class="border-solid border-1 border-gray-500 w-20">
+              <select
+                value={yUnit()}
+                class="w-full h-full bg-white cursor-pointer"
+                onchange={(e) => {
+                  setYUnit(
+                    (_) => (e.target as HTMLSelectElement).value as YUnits
+                  );
+                }}
+              >
+                <option value="emu">emu</option>
+                <option value="Am2">Am2</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td
+              class={
+                "border-solid border-1 border-gray-500 px-1 pt-1 " +
+                "bg-green-100 hover:bg-green-200 cursor-pointer "
+              }
+              colspan="2"
+              onclick={() => {
+                props.convert([xUnit(), yUnit()]);
+              }}
+            >
+              Convert
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 const PreView: Component<{
   setRoute: Setter<Route>;
@@ -42,7 +112,7 @@ const PreView: Component<{
   );
 };
 
-type ShowOver = "" | "meta";
+type ShowOver = "" | "meta" | "convert";
 
 const View: Component<{
   setRoute: Setter<Route>;
@@ -142,6 +212,10 @@ const View: Component<{
           label={showOver() == "meta" ? "Hide metadata" : "Show metadata"}
           onclick={() => setShowOver((v) => (v == "meta" ? "" : "meta"))}
         />
+        <TopButton
+          label={showOver() == "convert" ? "Hide convert" : "Convert"}
+          onclick={() => setShowOver((v) => (v == "convert" ? "" : "convert"))}
+        />
         <Show when={fileData().ty == 0 || fileData().ty == 1}>
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
@@ -153,11 +227,11 @@ const View: Component<{
       <Switch>
         <Match when={showOver() == "meta"}>
           <div class="w-full flex flex-row z-5 absolute">
-            <table class="flex-1 m-2 bg-white shadow-md">
+            <table class="m-2 bg-white shadow-md">
               <For each={fields}>
                 {(fd) => (
                   <tr>
-                    <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100">
+                    <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-50">
                       {fd}
                     </td>
                     <td class="border-solid border-1 border-gray-500 px-1 pt-1">
@@ -168,6 +242,15 @@ const View: Component<{
               </For>
             </table>
           </div>
+        </Match>
+        <Match when={showOver() == "convert"}>
+          <ConvertOverlay
+            units={fileData().units}
+            convert={(units) => {
+              console.log(units);
+              setShowOver((_) => "");
+            }}
+          />
         </Match>
       </Switch>
       {/* otherdata */}
