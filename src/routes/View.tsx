@@ -42,12 +42,14 @@ const PreView: Component<{
   );
 };
 
+type ShowOver = "" | "meta";
+
 const View: Component<{
   setRoute: Setter<Route>;
   fileData: ParseResult;
   plotly: any;
 }> = (props) => {
-  const [showMeta, setShowMeta] = createSignal(false);
+  const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
   const [fileData, setFileData] = createSignal(props.fileData);
 
@@ -137,8 +139,8 @@ const View: Component<{
           onclick={() => props.setRoute({ route: "open" })}
         />
         <TopButton
-          label={showMeta() ? "Hide metadata" : "Show metadata"}
-          onclick={() => setShowMeta((v) => !v)}
+          label={showOver() == "meta" ? "Hide metadata" : "Show metadata"}
+          onclick={() => setShowOver((v) => (v == "meta" ? "" : "meta"))}
         />
         <Show when={fileData().ty == 0 || fileData().ty == 1}>
           <TopButton
@@ -147,25 +149,27 @@ const View: Component<{
           />
         </Show>
       </div>
-      {/* metadata  */}
-      <Show when={showMeta()}>
-        <div class="w-full flex flex-row z-5 absolute">
-          <table class="flex-1 m-2 bg-white shadow-md">
-            <For each={fields}>
-              {(fd) => (
-                <tr>
-                  <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100">
-                    {fd}
-                  </td>
-                  <td class="border-solid border-1 border-gray-500 px-1 pt-1">
-                    {fileData().meta[fd]}
-                  </td>
-                </tr>
-              )}
-            </For>
-          </table>
-        </div>
-      </Show>
+      {/* over */}
+      <Switch>
+        <Match when={showOver() == "meta"}>
+          <div class="w-full flex flex-row z-5 absolute">
+            <table class="flex-1 m-2 bg-white shadow-md">
+              <For each={fields}>
+                {(fd) => (
+                  <tr>
+                    <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100">
+                      {fd}
+                    </td>
+                    <td class="border-solid border-1 border-gray-500 px-1 pt-1">
+                      {fileData().meta[fd]}
+                    </td>
+                  </tr>
+                )}
+              </For>
+            </table>
+          </div>
+        </Match>
+      </Switch>
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
         <div class="overflow-y-scroll flex-none border-1 border-gray-400">
