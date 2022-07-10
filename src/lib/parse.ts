@@ -27,13 +27,22 @@ const metaregex = new RegExp(
   "gm"
 );
 
+const unitregex = new RegExp(
+  "^Field\\((.*?)\\)\\s*Moment\\((.*?)\\)\\s*$",
+  "gm"
+);
+
 const dataregex = new RegExp(
   "^\\s*([-\\.0123456789]+)\\s*([-\\.0123456789]+)\\s*$",
   "gm"
 );
 
+export type XUnits = "Oe" | "A/m" | "T";
+export type YUnits = "emu" | "Am2";
+
 export type ParseResult = {
   meta: { [key: string]: string };
+  units: [XUnits, YUnits];
   data: number[][];
   ty: FileType;
 };
@@ -79,7 +88,15 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
     }
   })();
 
-  return { meta, data, ty };
+  const unitmatch = [...source.matchAll(unitregex)][0];
+
+  if (unitmatch == null) {
+    return null;
+  }
+
+  const units = [unitmatch[1], unitmatch[2]] as [XUnits, YUnits];
+
+  return { meta, data, ty, units };
 };
 
 const isz = (x: number) => Math.abs(x) < 1;

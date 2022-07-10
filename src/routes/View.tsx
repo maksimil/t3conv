@@ -42,30 +42,6 @@ const PreView: Component<{
   );
 };
 
-const PLOT_LAYOUT = {
-  margin: {
-    l: 100,
-    r: 80,
-    b: 100,
-    t: 40,
-  },
-  showlegend: false,
-  xaxis: {
-    title: "Field(Oe)",
-    exponentformat: "e",
-    linecolor: "black",
-    mirror: true,
-    linewidth: 1,
-  },
-  yaxis: {
-    title: "Moment(emu)",
-    exponentformat: "e",
-    linecolor: "black",
-    mirror: true,
-    linewidth: 1,
-  },
-};
-
 const View: Component<{
   setRoute: Setter<Route>;
   fileData: ParseResult;
@@ -73,11 +49,12 @@ const View: Component<{
 }> = (props) => {
   const [showMeta, setShowMeta] = createSignal(false);
   const [showTCurve, setShowTCurve] = createSignal(true);
+  const [fileData, setFileData] = createSignal(props.fileData);
 
   const Plotly = props.plotly;
 
   const plotDataMemo = createMemo(() =>
-    plotData(props.fileData).map(([x, y]) => ({
+    plotData(fileData()).map(([x, y]) => ({
       x,
       y,
       type: "scatter",
@@ -85,6 +62,30 @@ const View: Component<{
       hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
     }))
   );
+
+  const plotLayout = () => ({
+    margin: {
+      l: 100,
+      r: 80,
+      b: 100,
+      t: 40,
+    },
+    showlegend: false,
+    xaxis: {
+      title: `Field(${fileData().units[0]})`,
+      exponentformat: "e",
+      linecolor: "black",
+      mirror: true,
+      linewidth: 1,
+    },
+    yaxis: {
+      title: `Moment(${fileData().units[1]})`,
+      exponentformat: "e",
+      linecolor: "black",
+      mirror: true,
+      linewidth: 1,
+    },
+  });
 
   const getPlotData = () => {
     if (showTCurve()) {
@@ -109,7 +110,7 @@ const View: Component<{
 
     const plot = document.getElementById("plot");
 
-    Plotly.newPlot("plot", getPlotData(), PLOT_LAYOUT);
+    Plotly.newPlot("plot", getPlotData(), plotLayout());
 
     /* plot.on("plotly_hover", (d) => {
      *   console.log(d.points[0].pointIndex);
@@ -120,7 +121,7 @@ const View: Component<{
   });
 
   createEffect(() => {
-    Plotly.react("plot", getPlotData(), PLOT_LAYOUT);
+    Plotly.react("plot", getPlotData(), plotLayout());
   });
 
   window.addEventListener("resize", () => {
@@ -139,7 +140,7 @@ const View: Component<{
           label={showMeta() ? "Hide metadata" : "Show metadata"}
           onclick={() => setShowMeta((v) => !v)}
         />
-        <Show when={props.fileData.ty == 0 || props.fileData.ty == 1}>
+        <Show when={fileData().ty == 0 || fileData().ty == 1}>
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}
@@ -157,7 +158,7 @@ const View: Component<{
                     {fd}
                   </td>
                   <td class="border-solid border-1 border-gray-500 px-1 pt-1">
-                    {props.fileData.meta[fd]}
+                    {fileData().meta[fd]}
                   </td>
                 </tr>
               )}
@@ -169,7 +170,7 @@ const View: Component<{
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
         <div class="overflow-y-scroll flex-none border-1 border-gray-400">
           <table class="divide-y divide-gray-400">
-            <For each={props.fileData.data}>
+            <For each={fileData().data}>
               {(row) => (
                 <tr class="divide-x divide-gray-400">
                   <For each={row}>
