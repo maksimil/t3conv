@@ -123,6 +123,11 @@ const PreView: Component<{
 
 type ShowOver = "" | "meta" | "convert";
 
+const CONFIG = {
+  responsive: true,
+  scrollZoom: true,
+};
+
 const View: Component<{
   setRoute: Setter<Route>;
   fileData: ParseResult;
@@ -178,7 +183,8 @@ const View: Component<{
 
   let screenRef: HTMLDivElement,
     topBarRef: HTMLDivElement,
-    mainBoxRef: HTMLDivElement;
+    mainBoxRef: HTMLDivElement,
+    sideBarRef: HTMLDivElement;
 
   const resize = () => {
     const wh = screenRef.clientHeight;
@@ -191,7 +197,7 @@ const View: Component<{
 
     const plot = document.getElementById("plot");
 
-    Plotly.newPlot("plot", getPlotData(), plotLayout());
+    Plotly.newPlot("plot", getPlotData(), plotLayout(), CONFIG);
 
     /* plot.on("plotly_hover", (d) => {
      *   console.log(d.points[0].pointIndex);
@@ -199,14 +205,19 @@ const View: Component<{
      * plot.on("plotly_unhover", (d) => {
      *   console.log(d);
      * }); */
+
+    sideBarRef.addEventListener("resize", () => {
+      Plotly.Plots.resize();
+    });
   });
 
   createEffect(() => {
-    Plotly.react("plot", getPlotData(), plotLayout());
+    Plotly.react("plot", getPlotData(), plotLayout(), CONFIG);
   });
 
   window.addEventListener("resize", () => {
     resize();
+    Plotly.Plots.resize();
   });
 
   return (
@@ -267,7 +278,10 @@ const View: Component<{
       </Switch>
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
-        <div class="overflow-y-scroll flex-none border-1 border-gray-400">
+        <div
+          ref={sideBarRef}
+          class="overflow-y-scroll flex-none border-1 border-gray-400"
+        >
           <table class="divide-y divide-gray-400">
             <For each={fileData.data}>
               {(row) => (
@@ -291,7 +305,7 @@ const View: Component<{
             </For>
           </table>
         </div>
-        <div id="plot" class="flex-1"></div>
+        <div id="plot" class="flex-1 h-full" />
       </div>
     </div>
   );
