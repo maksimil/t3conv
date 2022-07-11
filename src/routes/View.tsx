@@ -208,6 +208,19 @@ const View: Component<{
     Plotly.Plots.resize("plot");
   });
 
+  const TopButtonOverlay: Component<{
+    labelHide: string;
+    labelShow: string;
+    option: ShowOver;
+  }> = (props) => (
+    <TopButton
+      label={showOver() == props.option ? props.labelHide : props.labelShow}
+      onclick={() =>
+        setShowOver((v) => (v == props.option ? "" : props.option))
+      }
+    />
+  );
+
   return (
     <div ref={screenRef} class="w-full h-full">
       {/* top bar */}
@@ -216,13 +229,15 @@ const View: Component<{
           label="Open Another file"
           onclick={() => props.setRoute({ route: "open" })}
         />
-        <TopButton
-          label={showOver() == "meta" ? "Hide metadata" : "Show metadata"}
-          onclick={() => setShowOver((v) => (v == "meta" ? "" : "meta"))}
+        <TopButtonOverlay
+          labelHide="Hide metadata"
+          labelShow="Show metadata"
+          option="meta"
         />
-        <TopButton
-          label={showOver() == "convert" ? "Hide convert" : "Convert"}
-          onclick={() => setShowOver((v) => (v == "convert" ? "" : "convert"))}
+        <TopButtonOverlay
+          labelHide="Hide convert"
+          labelShow="Convert"
+          option="convert"
         />
         <Show when={fileData.ty == 0 || fileData.ty == 1}>
           <TopButton
