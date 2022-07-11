@@ -21,6 +21,7 @@ import {
   YUnits,
   plotData,
   convertUnits,
+  TY_NAMES,
 } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
@@ -104,6 +105,73 @@ const ConvertOverlay: Component<{
   );
 };
 
+const ExportOverlay: Component<{
+  fileData: ParseResult;
+  onexport: () => void;
+}> = (props) => {
+  const [fileName, setFileName] = createSignal(
+    props.fileData.meta["Sample ID"] +
+      "-" +
+      TY_NAMES[props.fileData.ty] +
+      ".csv"
+  );
+  return (
+    <div class="w-full flex flex-row z-5 absolute">
+      <table class="m-2 bg-white shadow-md">
+        <tbody>
+          <tr>
+            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-25">
+              Filename
+            </td>
+            <td class="border-solid border-1 border-gray-500 pl-1 w-75">
+              <input
+                class="w-full focus:outline-none"
+                type="text"
+                value={fileName()}
+                onInput={(e) => {
+                  setFileName(e.currentTarget.value);
+                }}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td
+              class={
+                "border-solid border-1 border-gray-500 px-1 pt-1 " +
+                "bg-green-100 hover:bg-green-200 cursor-pointer"
+              }
+              colspan="2"
+              onclick={() => {
+                let text =
+                  `Field(${props.fileData.units[0]});` +
+                  `Moment(${props.fileData.units[1]});` +
+                  `Moment(${props.fileData.units[1]})`;
+
+                props.fileData.data.forEach((row) => {
+                  text +=
+                    "\n" + row.map((c) => (c === null ? "" : c)).join(";");
+                });
+
+                const el = document.createElement("a");
+                el.setAttribute(
+                  "href",
+                  "data:text/plain;charset=utf-8, " + encodeURIComponent(text)
+                );
+                el.setAttribute("download", fileName());
+                el.click();
+
+                props.onexport();
+              }}
+            >
+              Export
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const PreView: Component<{
   setRoute: Setter<Route>;
   data: () => Promise<ParseResult>;
@@ -121,7 +189,7 @@ const PreView: Component<{
   );
 };
 
-type ShowOver = "" | "meta" | "convert";
+type ShowOver = "" | "meta" | "convert" | "export";
 
 const CONFIG = {
   responsive: true,
@@ -245,6 +313,11 @@ const View: Component<{
             onclick={() => setShowTCurve((v) => !v)}
           />
         </Show>
+        <TopButtonOverlay
+          labelHide="Hide export"
+          labelShow="Export csv"
+          option="export"
+        />
       </div>
       {/* over */}
       <Switch>
@@ -276,6 +349,12 @@ const View: Component<{
                 setShowOver((_) => "");
               });
             }}
+          />
+        </Match>
+        <Match when={showOver() == "export"}>
+          <ExportOverlay
+            fileData={fileData}
+            onexport={() => setShowOver((_) => "")}
           />
         </Match>
       </Switch>
