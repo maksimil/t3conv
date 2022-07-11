@@ -10,9 +10,18 @@ import {
   createEffect,
   Match,
   Switch,
+  batch,
 } from "solid-js";
+import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { fields, ParseResult, XUnits, YUnits, plotData } from "../lib/parse";
+import {
+  fields,
+  ParseResult,
+  XUnits,
+  YUnits,
+  plotData,
+  convertUnits,
+} from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -121,12 +130,12 @@ const View: Component<{
 }> = (props) => {
   const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
-  const [fileData, setFileData] = createSignal(props.fileData);
+  const [fileData, setFileData] = createStore(props.fileData);
 
   const Plotly = props.plotly;
 
   const plotDataMemo = createMemo(() =>
-    plotData(fileData()).map(([x, y]) => ({
+    plotData(fileData).map(([x, y]) => ({
       x,
       y,
       type: "scatter",
@@ -144,14 +153,14 @@ const View: Component<{
     },
     showlegend: false,
     xaxis: {
-      title: `Field(${fileData().units[0]})`,
+      title: `Field(${fileData.units[0]})`,
       exponentformat: "e",
       linecolor: "black",
       mirror: true,
       linewidth: 1,
     },
     yaxis: {
-      title: `Moment(${fileData().units[1]})`,
+      title: `Moment(${fileData.units[1]})`,
       exponentformat: "e",
       linecolor: "black",
       mirror: true,
@@ -216,7 +225,7 @@ const View: Component<{
           label={showOver() == "convert" ? "Hide convert" : "Convert"}
           onclick={() => setShowOver((v) => (v == "convert" ? "" : "convert"))}
         />
-        <Show when={fileData().ty == 0 || fileData().ty == 1}>
+        <Show when={fileData.ty == 0 || fileData.ty == 1}>
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}
@@ -235,7 +244,7 @@ const View: Component<{
                       {fd}
                     </td>
                     <td class="border-solid border-1 border-gray-500 px-1 pt-1">
-                      {fileData().meta[fd]}
+                      {fileData.meta[fd]}
                     </td>
                   </tr>
                 )}
@@ -245,10 +254,13 @@ const View: Component<{
         </Match>
         <Match when={showOver() == "convert"}>
           <ConvertOverlay
-            units={fileData().units}
+            units={fileData.units}
             convert={(units) => {
               console.log(units);
-              setShowOver((_) => "");
+              batch(() => {
+                convertUnits(fileData, setFileData, units);
+                setShowOver((_) => "");
+              });
             }}
           />
         </Match>
@@ -257,7 +269,7 @@ const View: Component<{
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
         <div class="overflow-y-scroll flex-none border-1 border-gray-400">
           <table class="divide-y divide-gray-400">
-            <For each={fileData().data}>
+            <For each={fileData.data}>
               {(row) => (
                 <tr class="divide-x divide-gray-400">
                   <For each={row}>

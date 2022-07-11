@@ -1,3 +1,5 @@
+import { SetStoreFunction } from "solid-js/store";
+
 export const fields = [
   "Start Time",
   "Time Completed",
@@ -185,23 +187,18 @@ const CONVERT_PROPS = {
 
 export const convertUnits = (
   data: ParseResult,
+  setter: SetStoreFunction<ParseResult>,
   units: [XUnits, YUnits]
-): ParseResult => {
+) => {
   const convertX = CONVERT_PROPS[units[0]] / CONVERT_PROPS[data.units[0]];
   const convertY = CONVERT_PROPS[units[1]] / CONVERT_PROPS[data.units[1]];
   const convertMask = [convertX, convertY, convertY];
 
-  data.units = units;
-
-  console.log(data.data);
+  setter("units", units);
 
   for (let i = 0; i < data.data.length; i++) {
     for (let j = 0; j < data.data[i].length; j++) {
-      data.data[i][j] *= convertMask[i];
+      setter("data", i, j, data.data[i][j] * convertMask[j]);
     }
   }
-
-  console.log(data.data);
-
-  return data;
 };
