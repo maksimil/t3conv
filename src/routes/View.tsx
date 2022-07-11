@@ -195,29 +195,17 @@ const View: Component<{
   onMount(() => {
     resize();
 
-    const plot = document.getElementById("plot");
-
     Plotly.newPlot("plot", getPlotData(), plotLayout(), CONFIG);
-
-    /* plot.on("plotly_hover", (d) => {
-     *   console.log(d.points[0].pointIndex);
-     * });
-     * plot.on("plotly_unhover", (d) => {
-     *   console.log(d);
-     * }); */
-
-    sideBarRef.addEventListener("resize", () => {
-      Plotly.Plots.resize();
-    });
   });
 
   createEffect(() => {
     Plotly.react("plot", getPlotData(), plotLayout(), CONFIG);
+    Plotly.Plots.resize("plot");
   });
 
   window.addEventListener("resize", () => {
     resize();
-    Plotly.Plots.resize();
+    Plotly.Plots.resize("plot");
   });
 
   return (
@@ -282,27 +270,64 @@ const View: Component<{
           ref={sideBarRef}
           class="overflow-y-scroll flex-none border-1 border-gray-400"
         >
-          <table class="divide-y divide-gray-400">
-            <For each={fileData.data}>
-              {(row) => (
-                <tr class="divide-x divide-gray-400">
-                  <For each={row}>
-                    {(x, i) => (
-                      <Switch>
-                        <Match when={x != null}>
-                          <td class="pt-1 px-1 text-right">
-                            {x.toFixed([1, 5, 5][i()])}
-                          </td>
-                        </Match>
-                        <Match when={x == null}>
-                          <td class="bg-red-100 pt-1 px-1 text-right">-</td>
-                        </Match>
-                      </Switch>
-                    )}
-                  </For>
-                </tr>
-              )}
-            </For>
+          <table class="border-separate" style="border-spacing:0;">
+            <thead class="sticky top-0 z-2 bg-green-100">
+              <tr class="divide-x divide-gray-400">
+                <th
+                  class={
+                    "pt-1 px-1 text-left font-normal " +
+                    "sticky top-0 z-2 border-b-1 border-gray-400 "
+                  }
+                >
+                  {`Field(${fileData.units[0]})`}
+                </th>
+                <th
+                  class={
+                    "pt-1 px-1 text-left font-normal " +
+                    "sticky top-0 z-2 border-b-1 border-gray-400 "
+                  }
+                  colspan="2"
+                >{`Moment(${fileData.units[1]})`}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <For each={fileData.data}>
+                {(row, rowi) => (
+                  <tr class="divide-x divide-gray-400 ">
+                    <For each={row}>
+                      {(x, i) => (
+                        <Switch>
+                          <Match when={x != null}>
+                            <td
+                              class={
+                                "pt-1 px-1 text-right " +
+                                (rowi() > 0
+                                  ? "border-t-1 border-gray-400 "
+                                  : "")
+                              }
+                            >
+                              {x.toFixed([1, 5, 5][i()])}
+                            </td>
+                          </Match>
+                          <Match when={x == null}>
+                            <td
+                              class={
+                                "bg-red-100 pt-1 px-1 text-right " +
+                                (rowi() > 0
+                                  ? "border-t-1 border-gray-400 "
+                                  : "")
+                              }
+                            >
+                              -
+                            </td>
+                          </Match>
+                        </Switch>
+                      )}
+                    </For>
+                  </tr>
+                )}
+              </For>
+            </tbody>
           </table>
         </div>
         <div id="plot" class="flex-1 h-full" />

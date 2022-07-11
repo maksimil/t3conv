@@ -198,7 +198,12 @@ export const convertUnits = (
 
   for (let i = 0; i < data.data.length; i++) {
     for (let j = 0; j < data.data[i].length; j++) {
-      setter("data", i, j, data.data[i][j] * convertMask[j]);
+      setter(
+        "data",
+        i,
+        j,
+        data.data[i][j] !== null ? data.data[i][j] * convertMask[j] : null
+      );
     }
   }
 };
