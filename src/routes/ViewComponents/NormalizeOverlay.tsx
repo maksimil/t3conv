@@ -33,10 +33,12 @@ const RowElement: Component<{
               type="text"
               value={props.accessor()}
               class="w-30 focus:outline-none inline-block text-right"
-              onInput={(e) => {
+              onchange={(e) => {
                 const parsed = parseFloat(e.currentTarget.value);
-                if (parsed !== NaN) {
+                if (!isNaN(parsed)) {
                   props.setter(parsed);
+                } else {
+                  props.setter(null);
                 }
               }}
             />
