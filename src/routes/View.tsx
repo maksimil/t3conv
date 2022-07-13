@@ -19,6 +19,7 @@ import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
 import SideBar from "./ViewComponents/SideBar";
+import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -44,7 +45,7 @@ const PreView: Component<{
   );
 };
 
-type ShowOver = "" | "meta" | "convert" | "export";
+type ShowOver = "" | "meta" | "convert" | "export" | "normalize";
 
 const CONFIG = {
   responsive: true,
@@ -165,6 +166,11 @@ const View: Component<{
           />
         </Show>
         <TopButtonOverlay
+          labelHide="Hide normalize"
+          labelShow="Normalize"
+          option="normalize"
+        />
+        <TopButtonOverlay
           labelHide="Hide export"
           labelShow="Export csv"
           option="export"
@@ -191,6 +197,13 @@ const View: Component<{
           <ExportOverlay
             fileData={fileData}
             onexport={() => setShowOver((_) => "")}
+          />
+        </Match>
+        <Match when={showOver() == "normalize"}>
+          <NormalizeOverlay
+            normalize={(mass, volume) => {
+              console.log(mass, volume);
+            }}
           />
         </Match>
       </Switch>

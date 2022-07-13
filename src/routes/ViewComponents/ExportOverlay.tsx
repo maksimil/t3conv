@@ -11,6 +11,25 @@ const ExportOverlay: Component<{
       TY_NAMES[props.fileData.ty] +
       ".csv"
   );
+
+  const exportFn = () => {
+    let text = dataLabels(props.fileData).join(";");
+
+    props.fileData.data.forEach((row) => {
+      text += "\n" + row.map((c) => (c === null ? "" : c)).join(";");
+    });
+
+    const el = document.createElement("a");
+    el.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+    );
+    el.setAttribute("download", fileName());
+    el.click();
+
+    props.onexport();
+  };
+
   return (
     <div class="w-full flex flex-row z-5 absolute">
       <table class="m-2 bg-white shadow-md">
@@ -37,24 +56,7 @@ const ExportOverlay: Component<{
                 "bg-green-100 hover:bg-green-200 cursor-pointer"
               }
               colspan="2"
-              onclick={() => {
-                let text = dataLabels(props.fileData).join(";");
-
-                props.fileData.data.forEach((row) => {
-                  text +=
-                    "\n" + row.map((c) => (c === null ? "" : c)).join(";");
-                });
-
-                const el = document.createElement("a");
-                el.setAttribute(
-                  "href",
-                  "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-                );
-                el.setAttribute("download", fileName());
-                el.click();
-
-                props.onexport();
-              }}
+              onclick={exportFn}
             >
               Export
             </td>
