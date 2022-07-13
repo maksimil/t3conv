@@ -24,6 +24,7 @@ import {
   TY_NAMES,
   dataLabels,
 } from "../lib/parse";
+import Plotly from "plotly.js-dist";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -175,14 +176,10 @@ const PreView: Component<{
   data: () => Promise<ParseResult>;
 }> = (props) => {
   const [fileData] = createResource(props.data);
-  const [plotly] = createResource(async () => import("plotly.js-dist"));
 
   return (
-    <Show
-      when={!fileData.loading && !plotly.loading}
-      fallback={<p>Loading...</p>}
-    >
-      <View setRoute={props.setRoute} fileData={fileData()} plotly={plotly()} />
+    <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
+      <View setRoute={props.setRoute} fileData={fileData()} />
     </Show>
   );
 };
@@ -197,13 +194,10 @@ const CONFIG = {
 const View: Component<{
   setRoute: Setter<Route>;
   fileData: ParseResult;
-  plotly: any;
 }> = (props) => {
   const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
   const [fileData, setFileData] = createStore(props.fileData);
-
-  const Plotly = props.plotly;
 
   const plotDataMemo = createMemo(() =>
     plotData(fileData).map(([x, y]) => ({
