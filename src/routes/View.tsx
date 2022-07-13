@@ -4,7 +4,6 @@ import {
   createResource,
   Setter,
   Show,
-  For,
   onMount,
   createMemo,
   createEffect,
@@ -14,17 +13,12 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import {
-  fields,
-  ParseResult,
-  XUnits,
-  YUnits,
-  plotData,
-  convertUnits,
-  TY_NAMES,
-  dataLabels,
-} from "../lib/parse";
+import { ParseResult, plotData, convertUnits } from "../lib/parse";
 import Plotly from "plotly.js-dist";
+import ExportOverlay from "./ViewComponents/ExportOverlay";
+import ConvertOverlay from "./ViewComponents/ConvertOverlay";
+import MetaOverlay from "./ViewComponents/MetaOverlay";
+import SideBar from "./ViewComponents/SideBar";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -36,140 +30,6 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
     {props.label}
   </button>
 );
-
-const ConvertOverlay: Component<{
-  units: [XUnits, YUnits];
-  convert: (u: [XUnits, YUnits]) => void;
-}> = (props) => {
-  const [xUnit, setXUnit] = createSignal(props.units[0] as XUnits);
-  const [yUnit, setYUnit] = createSignal(props.units[1] as YUnits);
-
-  return (
-    <div class="w-full flex flex-row z-5 absolute">
-      <table class="m-2 bg-white shadow-md">
-        <tbody>
-          <tr>
-            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-30">
-              Field
-            </td>
-            <td class="border-solid border-1 border-gray-500 w-20">
-              <select
-                value={xUnit()}
-                class="w-full h-full bg-white cursor-pointer"
-                onchange={(e) => {
-                  setXUnit(
-                    (_) => (e.target as HTMLSelectElement).value as XUnits
-                  );
-                }}
-              >
-                <option value="Oe">Oe</option>
-                <option value="A/m">A/m</option>
-                <option value="T">T</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-30">
-              Momentum
-            </td>
-            <td class="border-solid border-1 border-gray-500 w-20">
-              <select
-                value={yUnit()}
-                class="w-full h-full bg-white cursor-pointer"
-                onchange={(e) => {
-                  setYUnit(
-                    (_) => (e.target as HTMLSelectElement).value as YUnits
-                  );
-                }}
-              >
-                <option value="emu">emu</option>
-                <option value="Am2">Am2</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td
-              class={
-                "border-solid border-1 border-gray-500 px-1 pt-1 " +
-                "bg-green-100 hover:bg-green-200 cursor-pointer "
-              }
-              colspan="2"
-              onclick={() => {
-                props.convert([xUnit(), yUnit()]);
-              }}
-            >
-              Convert
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const ExportOverlay: Component<{
-  fileData: ParseResult;
-  onexport: () => void;
-}> = (props) => {
-  const [fileName, setFileName] = createSignal(
-    props.fileData.meta["Sample ID"] +
-      "-" +
-      TY_NAMES[props.fileData.ty] +
-      ".csv"
-  );
-  return (
-    <div class="w-full flex flex-row z-5 absolute">
-      <table class="m-2 bg-white shadow-md">
-        <tbody>
-          <tr>
-            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-25">
-              Filename
-            </td>
-            <td class="border-solid border-1 border-gray-500 pl-1 w-75">
-              <input
-                class="w-full focus:outline-none"
-                type="text"
-                value={fileName()}
-                onInput={(e) => {
-                  setFileName(e.currentTarget.value);
-                }}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td
-              class={
-                "border-solid border-1 border-gray-500 px-1 pt-1 " +
-                "bg-green-100 hover:bg-green-200 cursor-pointer"
-              }
-              colspan="2"
-              onclick={() => {
-                let text = dataLabels(props.fileData).join(";");
-
-                props.fileData.data.forEach((row) => {
-                  text +=
-                    "\n" + row.map((c) => (c === null ? "" : c)).join(";");
-                });
-
-                const el = document.createElement("a");
-                el.setAttribute(
-                  "href",
-                  "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-                );
-                el.setAttribute("download", fileName());
-                el.click();
-
-                props.onexport();
-              }}
-            >
-              Export
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-};
 
 const PreView: Component<{
   setRoute: Setter<Route>;
@@ -243,8 +103,7 @@ const View: Component<{
 
   let screenRef: HTMLDivElement,
     topBarRef: HTMLDivElement,
-    mainBoxRef: HTMLDivElement,
-    sideBarRef: HTMLDivElement;
+    mainBoxRef: HTMLDivElement;
 
   const resize = () => {
     const wh = screenRef.clientHeight;
@@ -314,22 +173,7 @@ const View: Component<{
       {/* over */}
       <Switch>
         <Match when={showOver() == "meta"}>
-          <div class="w-full flex flex-row z-5 absolute">
-            <table class="m-2 bg-white shadow-md">
-              <For each={fields}>
-                {(fd) => (
-                  <tr>
-                    <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-50">
-                      {fd}
-                    </td>
-                    <td class="border-solid border-1 border-gray-500 px-1 pt-1">
-                      {fileData.meta[fd]}
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </table>
-          </div>
+          <MetaOverlay fileData={fileData} />
         </Match>
         <Match when={showOver() == "convert"}>
           <ConvertOverlay
@@ -352,67 +196,7 @@ const View: Component<{
       </Switch>
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
-        <div
-          ref={sideBarRef}
-          class="overflow-y-scroll flex-none border-1 border-gray-400"
-        >
-          <table class="border-separate" style="border-spacing:0;">
-            <thead class="sticky top-0 z-2 bg-green-100">
-              <tr class="divide-x divide-gray-400">
-                <For each={dataLabels(fileData)}>
-                  {(lbl) => (
-                    <th
-                      class={
-                        "pt-1 px-1 text-left font-normal " +
-                        "sticky top-0 z-2 border-b-1 border-gray-400 "
-                      }
-                    >
-                      {lbl}
-                    </th>
-                  )}
-                </For>
-              </tr>
-            </thead>
-            <tbody>
-              <For each={fileData.data}>
-                {(row, rowi) => (
-                  <tr class="divide-x divide-gray-400 ">
-                    <For each={row}>
-                      {(x, i) => (
-                        <Switch>
-                          <Match when={x != null}>
-                            <td
-                              class={
-                                "pt-1 px-1 text-right " +
-                                (rowi() > 0
-                                  ? "border-t-1 border-gray-400 "
-                                  : "")
-                              }
-                            >
-                              {x.toFixed([1, 5, 5][i()])}
-                            </td>
-                          </Match>
-                          <Match when={x == null}>
-                            <td
-                              class={
-                                "bg-red-100 pt-1 px-1 text-right " +
-                                (rowi() > 0
-                                  ? "border-t-1 border-gray-400 "
-                                  : "")
-                              }
-                            >
-                              -
-                            </td>
-                          </Match>
-                        </Switch>
-                      )}
-                    </For>
-                  </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
-        </div>
+        <SideBar fileData={fileData} />
         <div id="plot" class="flex-1 h-full" />
       </div>
     </div>

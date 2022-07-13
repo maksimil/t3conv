@@ -33,6 +33,37 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
     undefined as FileType | undefined
   );
 
+  const openNewFile = () => {
+    const fileSelector = document.createElement("input");
+    fileSelector.setAttribute("type", "file");
+    fileSelector.click();
+    fileSelector.onchange = (_) => {
+      props.setRoute({
+        route: "view",
+        data: async () => {
+          const file = fileSelector.files[0];
+
+          const data = parseFile(await file.text(), fileType());
+          const name = file.name;
+          const ty = fileType();
+
+          addHistory({ data, name, ty });
+          return data;
+        },
+      });
+    };
+  };
+
+  const openOldFile = (item: HistoryItem) => () => {
+    props.setRoute({
+      route: "view",
+      data: async () => {
+        addHistory(item);
+        return item.data;
+      },
+    });
+  };
+
   return (
     <div class="w-full h-full flex items-center justify-center bg-gray-100">
       <div
@@ -51,26 +82,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
                 : "bg-gray-100 ")
             }
             disabled={fileType() === undefined}
-            onclick={() => {
-              const fileSelector = document.createElement("input");
-              fileSelector.setAttribute("type", "file");
-              fileSelector.click();
-              fileSelector.onchange = (_) => {
-                props.setRoute({
-                  route: "view",
-                  data: async () => {
-                    const file = fileSelector.files[0];
-
-                    const data = parseFile(await file.text(), fileType());
-                    const name = file.name;
-                    const ty = fileType();
-
-                    addHistory({ data, name, ty });
-                    return data;
-                  },
-                });
-              };
-            }}
+            onclick={openNewFile}
           >
             Open new file
           </button>
@@ -109,20 +121,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
         </div>
         <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
           <For each={getHistory().reverse()}>
-            {(item) => (
-              <OpenFile
-                item={item}
-                onclick={() => {
-                  props.setRoute({
-                    route: "view",
-                    data: async () => {
-                      addHistory(item);
-                      return item.data;
-                    },
-                  });
-                }}
-              />
-            )}
+            {(item) => <OpenFile item={item} onclick={openOldFile(item)} />}
           </For>
         </div>
       </div>
