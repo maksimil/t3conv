@@ -20,6 +20,7 @@ import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
 import SideBar from "./ViewComponents/SideBar";
 import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
+import LinemodeOverlay from "./ViewComponents/LinemodeOverlay";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -45,12 +46,14 @@ const PreView: Component<{
   );
 };
 
-type ShowOver = "" | "meta" | "convert" | "export" | "normalize";
+type ShowOver = "" | "meta" | "convert" | "export" | "normalize" | "linemode";
 
 const CONFIG = {
   responsive: true,
   scrollZoom: true,
 };
+
+export type LineMode = { lines: boolean; markers: boolean };
 
 const View: Component<{
   setRoute: Setter<Route>;
@@ -59,16 +62,32 @@ const View: Component<{
   const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
   const [fileData, setFileData] = createStore(props.fileData);
+  const [lineMode, setLineMode] = createStore({
+    lines: true,
+    markers: true,
+  } as LineMode);
 
-  const plotDataMemo = createMemo(() =>
-    plotData(fileData).map(([x, y]) => ({
+  console.log(
+    Object.keys(lineMode)
+      .filter((v) => lineMode[v])
+      .join("+")
+  );
+
+  const plotDataMemo = createMemo(() => {
+    let mode = Object.keys(lineMode)
+      .filter((v) => lineMode[v])
+      .join("+");
+    if (mode === "") {
+      mode += "lines";
+    }
+    return plotData(fileData).map(([x, y]) => ({
       x,
       y,
-      type: "scatter",
+      mode,
       line: { width: 1 },
       hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
-    }))
-  );
+    }));
+  });
 
   const plotLayout = () => ({
     margin: {
@@ -171,6 +190,11 @@ const View: Component<{
           option="normalize"
         />
         <TopButtonOverlay
+          labelHide="Hide line mode"
+          labelShow="Line mode"
+          option="linemode"
+        />
+        <TopButtonOverlay
           labelHide="Hide export"
           labelShow="Export csv"
           option="export"
@@ -209,6 +233,9 @@ const View: Component<{
               });
             }}
           />
+        </Match>
+        <Match when={showOver() == "linemode"}>
+          <LinemodeOverlay mode={lineMode} setter={setLineMode} />
         </Match>
       </Switch>
       {/* otherdata */}
