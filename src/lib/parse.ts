@@ -178,11 +178,11 @@ const hystPlotData = (data: number[][]): [number[], number[]][] => [
 const FPI = 4 * Math.PI;
 
 const CONVERT_PROPS = {
-  Oe: FPI * 1_000,
-  "A/m": 1_000_000,
+  Oe: FPI * 10_000,
+  "A/m": 10_000_000,
   T: FPI,
-  emu: 1,
-  Am2: 1_000,
+  emu: 1_000,
+  Am2: 1,
 };
 
 export const convertUnits = (
