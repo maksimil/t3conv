@@ -22,6 +22,7 @@ import {
   plotData,
   convertUnits,
   TY_NAMES,
+  dataLabels,
 } from "../lib/parse";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
@@ -142,10 +143,7 @@ const ExportOverlay: Component<{
               }
               colspan="2"
               onclick={() => {
-                let text =
-                  `Field(${props.fileData.units[0]});` +
-                  `Moment(${props.fileData.units[1]});` +
-                  `Moment(${props.fileData.units[1]})`;
+                let text = dataLabels(props.fileData).join(";");
 
                 props.fileData.data.forEach((row) => {
                   text +=
@@ -155,7 +153,7 @@ const ExportOverlay: Component<{
                 const el = document.createElement("a");
                 el.setAttribute(
                   "href",
-                  "data:text/plain;charset=utf-8, " + encodeURIComponent(text)
+                  "data:text/plain;charset=utf-8," + encodeURIComponent(text)
                 );
                 el.setAttribute("download", fileName());
                 el.click();
@@ -367,21 +365,18 @@ const View: Component<{
           <table class="border-separate" style="border-spacing:0;">
             <thead class="sticky top-0 z-2 bg-green-100">
               <tr class="divide-x divide-gray-400">
-                <th
-                  class={
-                    "pt-1 px-1 text-left font-normal " +
-                    "sticky top-0 z-2 border-b-1 border-gray-400 "
-                  }
-                >
-                  {`Field(${fileData.units[0]})`}
-                </th>
-                <th
-                  class={
-                    "pt-1 px-1 text-left font-normal " +
-                    "sticky top-0 z-2 border-b-1 border-gray-400 "
-                  }
-                  colspan="2"
-                >{`Moment(${fileData.units[1]})`}</th>
+                <For each={dataLabels(fileData)}>
+                  {(lbl) => (
+                    <th
+                      class={
+                        "pt-1 px-1 text-left font-normal " +
+                        "sticky top-0 z-2 border-b-1 border-gray-400 "
+                      }
+                    >
+                      {lbl}
+                    </th>
+                  )}
+                </For>
               </tr>
             </thead>
             <tbody>

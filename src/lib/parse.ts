@@ -207,3 +207,19 @@ export const convertUnits = (
     }
   }
 };
+
+export const dataLabels = (data: ParseResult): string[] => {
+  switch (data.ty) {
+    // DCD, IRM
+    case 0:
+    case 1:
+      return [
+        `Field(${data.units[0]})`,
+        `TotalM(${data.units[1]})`,
+        `Remanence(${data.units[1]})`,
+      ];
+    // Hyst
+    case 2:
+      return [`Field(${data.units[0]})`, `Moment(${data.units[1]})`];
+  }
+};
