@@ -13,7 +13,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { ParseResult, plotData, convertUnits } from "../lib/parse";
+import { ParseResult, plotData, convertUnits, normalize } from "../lib/parse";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
@@ -203,6 +203,10 @@ const View: Component<{
           <NormalizeOverlay
             normalize={(mass, volume) => {
               console.log(mass, volume);
+              batch(() => {
+                normalize(fileData, setFileData, mass, volume);
+                setShowOver((_) => "");
+              });
             }}
           />
         </Match>

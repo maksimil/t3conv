@@ -223,3 +223,48 @@ export const dataLabels = (data: ParseResult): string[] => {
       return [`Field(${data.units[0]})`, `Moment(${data.units[1]})`];
   }
 };
+
+export const normalize = (
+  data: ParseResult,
+  setter: SetStoreFunction<ParseResult>,
+  mass: number | null,
+  volume: number | null
+) => {
+  const nmass = (() => {
+    if (mass === null) {
+      return 1;
+    } else {
+      // from mg to g
+      if (data.units[1] === "emu") {
+        return mass / 1_000;
+      }
+      // from mg to kg
+      else if (data.units[1] == "Am2") {
+        return mass / 1_000_000;
+      }
+    }
+  })();
+
+  const nvolume = (() => {
+    if (volume === null) {
+      return 1;
+    } else {
+      // from cm3 to cm3
+      if (data.units[1] == "emu") {
+        return volume;
+      }
+      // from cm3 to m3
+      if (data.units[1] == "Am2") {
+        return volume / 1_000_000;
+      }
+    }
+  })();
+
+  const ddiv = nvolume * nmass;
+
+  for (let i = 0; i < data.data.length; i++) {
+    for (let j = 1; j < data.data[i].length; j++) {
+      setter("data", i, j, data.data[i][j] / ddiv);
+    }
+  }
+};
