@@ -67,10 +67,11 @@ const RowElement: Component<{
 };
 
 const NormalizeOverlay: Component<{
+  initial: [number | null, number | null];
   normalize: (mass: number | null, volume: number | null) => void;
 }> = (props) => {
-  const [mass, setMass] = createSignal(null);
-  const [volume, setVolume] = createSignal(null);
+  const [mass, setMass] = createSignal(props.initial[0]);
+  const [volume, setVolume] = createSignal(props.initial[1]);
 
   return (
     <div class="w-full flex flex-row z-5 absolute">

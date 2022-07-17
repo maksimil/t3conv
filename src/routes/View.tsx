@@ -19,6 +19,7 @@ import {
   convertUnits,
   normalize,
   plotLabels,
+  norm_values,
 } from "../lib/parse";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
@@ -219,6 +220,7 @@ const View: Component<{
             convert={(units) => {
               console.log(units);
               batch(() => {
+                normalize(fileData, setFileData, null, null);
                 convertUnits(fileData, setFileData, units);
                 setShowOver((_) => "");
               });
@@ -233,6 +235,7 @@ const View: Component<{
         </Match>
         <Match when={showOver() == "normalize"}>
           <NormalizeOverlay
+            initial={norm_values(fileData)}
             normalize={(mass, volume) => {
               console.log(mass, volume);
               batch(() => {

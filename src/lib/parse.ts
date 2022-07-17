@@ -40,15 +40,7 @@ const dataregex = new RegExp(
 );
 
 export type XUnits = "Oe" | "A/m" | "T";
-export type YUnits =
-  | "emu"
-  | "emu/g"
-  | "emu/cm3"
-  | "emu/(g*cm3)"
-  | "Am2"
-  | "Am2/kg"
-  | "Am2/m3"
-  | "Am2/(kg*m3)";
+export type YUnits = "emu" | "Am2";
 
 export type ParseResult = {
   meta: { [key: string]: string };
@@ -207,12 +199,7 @@ export const convertUnits = (
 
   for (let i = 0; i < data.data.length; i++) {
     for (let j = 0; j < data.data[i].length; j++) {
-      setter(
-        "data",
-        i,
-        j,
-        data.data[i][j] !== null ? data.data[i][j] * convertMask[j] : null
-      );
+      setter("data", i, j, (d) => (d !== null ? d * convertMask[j] : null));
     }
   }
 };
@@ -248,13 +235,13 @@ export const plotLabels = (data: ParseResult): string[] => {
   return [`Field(${data.units[0]})`, `Moment(${yunits})`];
 };
 
-const norm_units = (unit: YUnits, mass: boolean, volume: boolean): YUnits => {
+const norm_units = (unit: YUnits, mass: boolean, volume: boolean): string => {
   const mask = (mass ? 1 : 0) * 2 + (volume ? 1 : 0) * 1;
   switch (unit) {
     case "emu":
-      return (["emu", "emu/cm3", "emu/g", "emu/(g*cm3)"] as YUnits[])[mask];
+      return ["emu", "emu/cm3", "emu/g", "emu/(g*cm3)"][mask];
     case "Am2":
-      return (["Am2", "Am2/m3", "Am2/kg", "Am2/(kg*m3)"] as YUnits[])[mask];
+      return ["Am2", "Am2/m3", "Am2/kg", "Am2/(kg*m3)"][mask];
   }
 };
 
@@ -268,13 +255,13 @@ export const normalize = (
     if (mass === null) {
       return [1, false];
     } else {
-      // from mg to g
-      if (data.units[1] === "emu") {
-        return [mass / 1_000, true];
-      }
-      // from mg to kg
-      else if (data.units[1] == "Am2") {
-        return [mass / 1_000_000, true];
+      switch (data.units[1]) {
+        // from mg to g
+        case "emu":
+          return [mass / 1_000, true];
+        // from mg to kg
+        case "Am2":
+          return [mass / 1_000_000, true];
       }
     }
   })();
@@ -283,24 +270,58 @@ export const normalize = (
     if (volume === null) {
       return [1, false];
     } else {
-      // from cm3 to cm3
-      if (data.units[1] == "emu") {
-        return [volume, true];
-      }
-      // from cm3 to m3
-      if (data.units[1] == "Am2") {
-        return [volume / 1_000_000, true];
+      switch (data.units[1]) {
+        // from cm3 to cm3
+        case "emu":
+          return [volume, true];
+        // from cm3 to m3
+        case "Am2":
+          return [volume / 1_000_000, true];
       }
     }
   })();
 
-  const ddiv = nvolume * nmass;
+  const null1 = (v: number) => (v === null ? 1 : v);
+
+  const ddiv =
+    (null1(data.normalization[0]) * null1(data.normalization[1])) /
+    (nvolume * nmass);
 
   for (let i = 0; i < data.data.length; i++) {
     for (let j = 1; j < data.data[i].length; j++) {
-      setter("data", i, j, data.data[i][j] / ddiv);
+      setter("data", i, j, (d) => d * ddiv);
     }
   }
 
   setter("normalization", [imass ? nmass : null, ivolume ? nvolume : null]);
+};
+
+export const norm_values = (data: ParseResult): [number, number] => {
+  const mass = (() => {
+    if (data.normalization[0] === null) {
+      return null;
+    }
+
+    switch (data.units[1]) {
+      case "emu":
+        return data.normalization[0] * 1_000;
+      case "Am2":
+        return data.normalization[0] * 1_000_000;
+    }
+  })();
+
+  const volume = (() => {
+    if (data.normalization[1] === null) {
+      return null;
+    }
+
+    switch (data.units[1]) {
+      case "emu":
+        return data.normalization[1];
+      case "Am2":
+        return data.normalization[1] * 1_000_000;
+    }
+  })();
+
+  return [mass, volume];
 };
