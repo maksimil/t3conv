@@ -13,7 +13,13 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { ParseResult, plotData, convertUnits, normalize } from "../lib/parse";
+import {
+  ParseResult,
+  plotData,
+  convertUnits,
+  normalize,
+  plotLabels,
+} from "../lib/parse";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
@@ -83,29 +89,33 @@ const View: Component<{
     }));
   });
 
-  const plotLayout = () => ({
-    margin: {
-      l: 100,
-      r: 80,
-      b: 100,
-      t: 40,
-    },
-    showlegend: false,
-    xaxis: {
-      title: `Field(${fileData.units[0]})`,
-      exponentformat: "e",
-      linecolor: "black",
-      mirror: true,
-      linewidth: 1,
-    },
-    yaxis: {
-      title: `Moment(${fileData.units[1]})`,
-      exponentformat: "e",
-      linecolor: "black",
-      mirror: true,
-      linewidth: 1,
-    },
-  });
+  const plotLayout = () => {
+    const [xtitle, ytitle] = plotLabels(fileData);
+
+    return {
+      margin: {
+        l: 100,
+        r: 80,
+        b: 100,
+        t: 40,
+      },
+      showlegend: false,
+      xaxis: {
+        title: xtitle,
+        exponentformat: "e",
+        linecolor: "black",
+        mirror: true,
+        linewidth: 1,
+      },
+      yaxis: {
+        title: ytitle,
+        exponentformat: "e",
+        linecolor: "black",
+        mirror: true,
+        linewidth: 1,
+      },
+    };
+  };
 
   const getPlotData = () => {
     if (showTCurve()) {

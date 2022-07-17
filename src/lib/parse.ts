@@ -218,19 +218,34 @@ export const convertUnits = (
 };
 
 export const dataLabels = (data: ParseResult): string[] => {
+  const yunits = norm_units(
+    data.units[1],
+    data.normalization[0] !== null,
+    data.normalization[1] !== null
+  );
   switch (data.ty) {
     // DCD, IRM
     case 0:
     case 1:
       return [
         `Field(${data.units[0]})`,
-        `TotalM(${data.units[1]})`,
-        `Remanence(${data.units[1]})`,
+        `TotalM(${yunits})`,
+        `Remanence(${yunits})`,
       ];
     // Hyst
     case 2:
-      return [`Field(${data.units[0]})`, `Moment(${data.units[1]})`];
+      return [`Field(${data.units[0]})`, `Moment(${yunits})`];
   }
+};
+
+export const plotLabels = (data: ParseResult): string[] => {
+  const yunits = norm_units(
+    data.units[1],
+    data.normalization[0] !== null,
+    data.normalization[1] !== null
+  );
+
+  return [`Field(${data.units[0]})`, `Moment(${yunits})`];
 };
 
 const norm_units = (unit: YUnits, mass: boolean, volume: boolean): YUnits => {
@@ -287,6 +302,5 @@ export const normalize = (
     }
   }
 
-  setter("units", 1, norm_units(data.units[1], imass, ivolume));
-  setter("normalization", [nmass, nvolume]);
+  setter("normalization", [imass ? nmass : null, ivolume ? nvolume : null]);
 };
