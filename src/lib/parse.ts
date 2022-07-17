@@ -40,11 +40,20 @@ const dataregex = new RegExp(
 );
 
 export type XUnits = "Oe" | "A/m" | "T";
-export type YUnits = "emu" | "Am2";
+export type YUnits =
+  | "emu"
+  | "emu/g"
+  | "emu/cm3"
+  | "emu/(g*cm3)"
+  | "Am2"
+  | "Am2/kg"
+  | "Am2/m3"
+  | "Am2/(kg*m3)";
 
 export type ParseResult = {
   meta: { [key: string]: string };
   units: [XUnits, YUnits];
+  normalization: [number | null, number | null];
   data: number[][];
   ty: FileType;
 };
@@ -98,7 +107,7 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
 
   const units = [unitmatch[1], unitmatch[2]] as [XUnits, YUnits];
 
-  return { meta, data, ty, units };
+  return { meta, data, ty, units, normalization: [null, null] };
 };
 
 const isz = (x: number) => Math.abs(x) < 1;
@@ -224,38 +233,48 @@ export const dataLabels = (data: ParseResult): string[] => {
   }
 };
 
+const norm_units = (unit: YUnits, mass: boolean, volume: boolean): YUnits => {
+  const mask = (mass ? 1 : 0) * 2 + (volume ? 1 : 0) * 1;
+  switch (unit) {
+    case "emu":
+      return (["emu", "emu/cm3", "emu/g", "emu/(g*cm3)"] as YUnits[])[mask];
+    case "Am2":
+      return (["Am2", "Am2/m3", "Am2/kg", "Am2/(kg*m3)"] as YUnits[])[mask];
+  }
+};
+
 export const normalize = (
   data: ParseResult,
   setter: SetStoreFunction<ParseResult>,
   mass: number | null,
   volume: number | null
 ) => {
-  const nmass = (() => {
+  const [nmass, imass] = (() => {
     if (mass === null) {
-      return 1;
+      return [1, false];
     } else {
       // from mg to g
       if (data.units[1] === "emu") {
-        return mass / 1_000;
+        return [mass / 1_000, true];
       }
       // from mg to kg
       else if (data.units[1] == "Am2") {
-        return mass / 1_000_000;
+        return [mass / 1_000_000, true];
       }
     }
   })();
 
-  const nvolume = (() => {
+  const [nvolume, ivolume] = (() => {
     if (volume === null) {
-      return 1;
+      return [1, false];
     } else {
       // from cm3 to cm3
       if (data.units[1] == "emu") {
-        return volume;
+        return [volume, true];
       }
       // from cm3 to m3
       if (data.units[1] == "Am2") {
-        return volume / 1_000_000;
+        return [volume / 1_000_000, true];
       }
     }
   })();
@@ -267,4 +286,7 @@ export const normalize = (
       setter("data", i, j, data.data[i][j] / ddiv);
     }
   }
+
+  setter("units", 1, norm_units(data.units[1], imass, ivolume));
+  setter("normalization", [nmass, nvolume]);
 };

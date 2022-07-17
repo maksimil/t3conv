@@ -67,18 +67,12 @@ const View: Component<{
     markers: true,
   } as LineMode);
 
-  console.log(
-    Object.keys(lineMode)
-      .filter((v) => lineMode[v])
-      .join("+")
-  );
-
   const plotDataMemo = createMemo(() => {
     let mode = Object.keys(lineMode)
       .filter((v) => lineMode[v])
       .join("+");
     if (mode === "") {
-      mode += "lines";
+      mode = "lines";
     }
     return plotData(fileData).map(([x, y]) => ({
       x,
@@ -140,6 +134,10 @@ const View: Component<{
   createEffect(() => {
     Plotly.react("plot", getPlotData(), plotLayout(), CONFIG);
     Plotly.Plots.resize("plot");
+  });
+
+  createEffect(() => {
+    console.log(JSON.parse(JSON.stringify(fileData)));
   });
 
   window.addEventListener("resize", () => {
