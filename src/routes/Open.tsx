@@ -1,4 +1,4 @@
-import { Component, createSignal, For, Setter, Switch, Match } from "solid-js";
+import { Component, For, Setter } from "solid-js";
 import { Route } from "../App";
 import { FileType, parseFile, TY_NAMES } from "../lib/parse";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
@@ -29,11 +29,7 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
 };
 
 const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
-  const [fileType, setFileType] = createSignal(
-    undefined as FileType | undefined
-  );
-
-  const openNewFile = () => {
+  const openNewFile = (ty: FileType) => {
     const fileSelector = document.createElement("input");
     fileSelector.setAttribute("type", "file");
     fileSelector.click();
@@ -43,11 +39,11 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
         data: async () => {
           const file = fileSelector.files[0];
 
-          const data = parseFile(await file.text(), fileType());
+          const rawdata = await file.text();
+          const data = parseFile(rawdata, ty);
           const name = file.name;
-          const ty = fileType();
 
-          addHistory({ data, name, ty });
+          addHistory({ rawdata, name, ty });
           return data;
         },
       });
@@ -59,7 +55,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
       route: "view",
       data: async () => {
         addHistory(item);
-        return item.data;
+        return parseFile(item.rawdata, item.ty);
       },
     });
   };
@@ -72,52 +68,21 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           "space-y-4 flex flex-col"
         }
       >
-        <div class="flex flex-row">
-          <button
-            class={
-              "flex-1 text-xl text-center p-2 mx-2 " +
-              "shadow-md rounded-3xl " +
-              (fileType() !== undefined
-                ? "bg-green-50 hover:bg-green-100 hover:shadow-lg "
-                : "bg-gray-100 ")
-            }
-            disabled={fileType() === undefined}
-            onclick={openNewFile}
-          >
-            Open new file
-          </button>
-          <Switch>
-            <Match when={fileType() === undefined}>
-              <div class="flex-1 flex flex-row mx-2 space-x-1 ">
-                <For each={[0, 1, 2] as FileType[]}>
-                  {(ty) => (
-                    <button
-                      class={
-                        "flex-1 text-xl text-center py-2 " +
-                        "shadow-md hover:shadow-lg rounded-3xl " +
-                        TY_STYLES[ty]
-                      }
-                      onclick={() => setFileType((_) => ty)}
-                    >
-                      {TY_NAMES[ty]}
-                    </button>
-                  )}
-                </For>
-              </div>
-            </Match>
-            <Match when={fileType() !== undefined}>
+        <div class="mx-2 space-x-1 flex flex-row">
+          <For each={[0, 1, 2] as FileType[]}>
+            {(ty) => (
               <button
                 class={
-                  "flex-1 text-xl text-center py-2 mx-2 " +
-                  "shadow-sm hover:shadow-md rounded-3xl " +
-                  TY_STYLES[fileType()]
+                  "flex-1 text-xl text-center py-2 " +
+                  "shadow-md hover:shadow-lg rounded-3xl " +
+                  TY_STYLES[ty]
                 }
-                onclick={() => setFileType((_) => undefined)}
+                onclick={() => openNewFile(ty)}
               >
-                {TY_NAMES[fileType()]}
+                Open {TY_NAMES[ty]}
               </button>
-            </Match>
-          </Switch>
+            )}
+          </For>
         </div>
         <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
           <For each={getHistory().reverse()}>

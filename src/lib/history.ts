@@ -1,8 +1,8 @@
-import { ParseResult, FileType } from "./parse";
+import { FileType } from "./parse";
 
 export type HistoryItem = {
   name: string;
-  data: ParseResult;
+  rawdata: string;
   ty: FileType;
 };
 
