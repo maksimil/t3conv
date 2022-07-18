@@ -1,16 +1,22 @@
 import { Component, createSignal } from "solid-js";
 import { TY_NAMES, ParseResult, dataLabels } from "../../lib/parse";
 
+type DataMode = "Raw" | "Converted";
+
 const ExportOverlay: Component<{
   fileData: ParseResult;
   onexport: () => void;
 }> = (props) => {
-  const [fileName, setFileName] = createSignal(
+  const [dataMode, setDataMode] = createSignal("Converted" as DataMode);
+  const [fileName, setFileName] = createSignal(null as string | null);
+
+  const autoFileName = () =>
     props.fileData.meta["Sample ID"] +
-      "-" +
-      TY_NAMES[props.fileData.ty] +
-      ".csv"
-  );
+    "-" +
+    TY_NAMES[props.fileData.ty] +
+    "-" +
+    dataMode() +
+    ".csv";
 
   const exportFn = () => {
     let text = dataLabels(props.fileData).join(";");
@@ -30,19 +36,44 @@ const ExportOverlay: Component<{
     props.onexport();
   };
 
+  const DataChoice: Component<{ mode: DataMode }> = (props) => (
+    <td
+      class={
+        "w-45 border-solid border-1 border-gray-500 px-1 pt-1 cursor-pointer " +
+        (dataMode() === props.mode
+          ? "bg-green-100 hover:bg-green-200 "
+          : "bg-gray-100 hover:bg-gray-200")
+      }
+      onclick={() => setDataMode(props.mode)}
+    >
+      {props.mode}
+    </td>
+  );
+
   return (
     <div class="w-full flex flex-row z-5 absolute">
       <table class="m-2 bg-white shadow-md">
         <tbody>
           <tr>
-            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-25">
+            <td
+              class={
+                "border-solid border-1 border-gray-500 px-1 pt-1 w-25 " +
+                (fileName() === null
+                  ? "bg-gray-100 "
+                  : "bg-green-100 hover:bg-green-200 cursor-pointer ")
+              }
+              onclick={() => setFileName(null)}
+            >
               Filename
             </td>
-            <td class="border-solid border-1 border-gray-500 pl-1 w-75">
+            <td
+              class="border-solid border-1 border-gray-500 pl-1 w-90"
+              colspan="2"
+            >
               <input
                 class="w-full focus:outline-none"
                 type="text"
-                value={fileName()}
+                value={fileName() === null ? autoFileName() : fileName()}
                 onInput={(e) => {
                   setFileName(e.currentTarget.value);
                 }}
@@ -50,12 +81,19 @@ const ExportOverlay: Component<{
             </td>
           </tr>
           <tr>
+            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-25">
+              Data
+            </td>
+            <DataChoice mode="Raw" />
+            <DataChoice mode="Converted" />
+          </tr>
+          <tr>
             <td
               class={
                 "border-solid border-1 border-gray-500 px-1 pt-1 " +
                 "bg-green-100 hover:bg-green-200 cursor-pointer"
               }
-              colspan="2"
+              colspan="3"
               onclick={exportFn}
             >
               Export
