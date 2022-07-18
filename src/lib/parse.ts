@@ -221,7 +221,11 @@ export const dataLabels = (data: ParseResult): string[] => {
       ];
     // Hyst
     case 2:
-      return [`Field(${data.units[0]})`, `Moment(${yunits})`];
+      if (data.normalization[0] !== null || data.normalization[1] !== null) {
+        return [`Field(${data.units[0]})`, `Magnetization(${yunits})`];
+      } else {
+        return [`Field(${data.units[0]})`, `Moment(${yunits})`];
+      }
   }
 };
 
@@ -232,7 +236,11 @@ export const plotLabels = (data: ParseResult): string[] => {
     data.normalization[1] !== null
   );
 
-  return [`Field(${data.units[0]})`, `Moment(${yunits})`];
+  if (data.normalization[0] !== null || data.normalization[1] !== null) {
+    return [`Field(${data.units[0]})`, `Magnetization(${yunits})`];
+  } else {
+    return [`Field(${data.units[0]})`, `Moment(${yunits})`];
+  }
 };
 
 const norm_units = (unit: YUnits, mass: boolean, volume: boolean): string => {
