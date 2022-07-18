@@ -1,7 +1,23 @@
-import { Component, For, Switch, Match } from "solid-js";
-import { ParseResult, dataLabels } from "../../lib/parse";
+import { Component, For, Switch, Match, createMemo } from "solid-js";
+import { ParseResult, dataLabels, XUnits, YUnits } from "../../lib/parse";
+
+const CONVERT_FNS: { [key: XUnits | YUnits]: (v: number) => string } = {
+  Oe: (v: number) => v.toFixed(2),
+  "A/m": (v: number) => v.toFixed(0),
+  T: (v: number) => v.toFixed(4),
+  emu: (v: number) => v.toExponential(5),
+  Am2: (v: number) => v.toExponential(5),
+};
+
+const convertMask = (data: ParseResult): ((v: number) => string)[] => [
+  CONVERT_FNS[data.units[0]],
+  CONVERT_FNS[data.units[1]],
+  CONVERT_FNS[data.units[1]],
+];
 
 const SideBar: Component<{ fileData: ParseResult }> = (props) => {
+  const maskMemo = createMemo(() => convertMask(props.fileData));
+
   return (
     <div class="overflow-y-scroll flex-none border-1 border-gray-400">
       <table class="border-separate" style="border-spacing:0;">
@@ -35,7 +51,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
                             (rowi() > 0 ? "border-t-1 border-gray-400 " : "")
                           }
                         >
-                          {x.toFixed([1, 5, 5][i()])}
+                          {maskMemo()[i()](x)}
                         </td>
                       </Match>
                       <Match when={x == null}>

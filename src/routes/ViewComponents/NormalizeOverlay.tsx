@@ -32,7 +32,7 @@ const RowElement: Component<{
             <input
               type="text"
               value={props.accessor()}
-              class="w-30 focus:outline-none inline-block text-right"
+              class="w-15 focus:outline-none inline-block text-right"
               onchange={(e) => {
                 const parsed = parseFloat(e.currentTarget.value);
                 if (!isNaN(parsed)) {
@@ -57,7 +57,7 @@ const RowElement: Component<{
             {props.label}
           </td>
           <td class="border-solid border-1 border-gray-500 pl-1">
-            <div class="w-30 inline-block text-right">-</div>
+            <div class="w-15 inline-block text-right">-</div>
             <div class="inline ml-1">{props.units}</div>
           </td>
         </tr>
