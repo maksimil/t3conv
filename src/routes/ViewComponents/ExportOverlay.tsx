@@ -1,5 +1,6 @@
 import { Component, createSignal } from "solid-js";
 import { TY_NAMES, ParseResult, dataLabels } from "../../lib/parse";
+import { convertMask } from "./SideBar";
 
 type DataMode = "Raw" | "Converted";
 
@@ -21,8 +22,22 @@ const ExportOverlay: Component<{
   const exportFn = () => {
     let text = dataLabels(props.fileData).join(";");
 
+    const convert: ((v: number) => string)[] = (() => {
+      switch (dataMode()) {
+        case "Raw":
+          return [
+            (v) => v.toString(),
+            (v) => v.toString(),
+            (v) => v.toString(),
+          ];
+        case "Converted":
+          return convertMask(props.fileData);
+      }
+    })();
+
     props.fileData.data.forEach((row) => {
-      text += "\n" + row.map((c) => (c === null ? "" : c)).join(";");
+      text +=
+        "\n" + row.map((c, i) => (c === null ? "" : convert[i](c))).join(";");
     });
 
     const el = document.createElement("a");
@@ -30,7 +45,10 @@ const ExportOverlay: Component<{
       "href",
       "data:text/plain;charset=utf-8," + encodeURIComponent(text)
     );
-    el.setAttribute("download", fileName());
+    el.setAttribute(
+      "download",
+      fileName() === null ? autoFileName() : fileName()
+    );
     el.click();
 
     props.onexport();

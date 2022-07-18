@@ -9,7 +9,7 @@ const CONVERT_FNS: { [key: XUnits | YUnits]: (v: number) => string } = {
   Am2: (v: number) => v.toExponential(5),
 };
 
-const convertMask = (data: ParseResult): ((v: number) => string)[] => [
+export const convertMask = (data: ParseResult): ((v: number) => string)[] => [
   CONVERT_FNS[data.units[0]],
   CONVERT_FNS[data.units[1]],
   CONVERT_FNS[data.units[1]],
