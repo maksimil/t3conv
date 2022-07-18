@@ -19,7 +19,8 @@ import {
   convertUnits,
   normalize,
   plotLabels,
-  norm_values,
+  normValues,
+  resetFormatting,
 } from "../lib/parse";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
@@ -208,6 +209,10 @@ const View: Component<{
           labelShow="Export csv"
           option="export"
         />
+        <TopButton
+          label="Reset"
+          onclick={() => resetFormatting(fileData, setFileData)}
+        />
       </div>
       {/* over */}
       <Switch>
@@ -235,7 +240,7 @@ const View: Component<{
         </Match>
         <Match when={showOver() == "normalize"}>
           <NormalizeOverlay
-            initial={norm_values(fileData)}
+            initial={normValues(fileData)}
             normalize={(mass, volume) => {
               console.log(mass, volume);
               batch(() => {

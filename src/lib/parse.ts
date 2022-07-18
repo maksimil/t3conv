@@ -1,3 +1,4 @@
+import { batch } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 
 export const fields = [
@@ -45,6 +46,7 @@ export type YUnits = "emu" | "Am2";
 export type ParseResult = {
   meta: { [key: string]: string };
   units: [XUnits, YUnits];
+  initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];
   data: number[][];
   ty: FileType;
@@ -99,7 +101,14 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
 
   const units = [unitmatch[1], unitmatch[2]] as [XUnits, YUnits];
 
-  return { meta, data, ty, units, normalization: [null, null] };
+  return {
+    meta,
+    data,
+    ty,
+    units,
+    initUnits: units,
+    normalization: [null, null],
+  };
 };
 
 const isz = (x: number) => Math.abs(x) < 1;
@@ -205,7 +214,7 @@ export const convertUnits = (
 };
 
 export const dataLabels = (data: ParseResult): string[] => {
-  const yunits = norm_units(
+  const yunits = normUnits(
     data.units[1],
     data.normalization[0] !== null,
     data.normalization[1] !== null
@@ -230,7 +239,7 @@ export const dataLabels = (data: ParseResult): string[] => {
 };
 
 export const plotLabels = (data: ParseResult): string[] => {
-  const yunits = norm_units(
+  const yunits = normUnits(
     data.units[1],
     data.normalization[0] !== null,
     data.normalization[1] !== null
@@ -243,13 +252,13 @@ export const plotLabels = (data: ParseResult): string[] => {
   }
 };
 
-const norm_units = (unit: YUnits, mass: boolean, volume: boolean): string => {
+const normUnits = (unit: YUnits, mass: boolean, volume: boolean): string => {
   const mask = (mass ? 1 : 0) * 2 + (volume ? 1 : 0) * 1;
   switch (unit) {
     case "emu":
       return ["emu", "emu/cm3", "emu/g", "emu/(g*cm3)"][mask];
     case "Am2":
-      return ["Am2", "Am2/m3", "Am2/kg", "Am2/(kg*m3)"][mask];
+      return ["Am2", "A/m", "Am2/kg", "A/(kg*m)"][mask];
   }
 };
 
@@ -304,7 +313,7 @@ export const normalize = (
   setter("normalization", [imass ? nmass : null, ivolume ? nvolume : null]);
 };
 
-export const norm_values = (data: ParseResult): [number, number] => {
+export const normValues = (data: ParseResult): [number, number] => {
   const mass = (() => {
     if (data.normalization[0] === null) {
       return null;
@@ -332,4 +341,14 @@ export const norm_values = (data: ParseResult): [number, number] => {
   })();
 
   return [mass, volume];
+};
+
+export const resetFormatting = (
+  data: ParseResult,
+  setter: SetStoreFunction<ParseResult>
+) => {
+  batch(() => {
+    normalize(data, setter, null, null);
+    convertUnits(data, setter, data.initUnits);
+  });
 };

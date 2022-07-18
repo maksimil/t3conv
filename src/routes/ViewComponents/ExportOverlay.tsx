@@ -1,43 +1,31 @@
 import { Component, createSignal } from "solid-js";
 import { TY_NAMES, ParseResult, dataLabels } from "../../lib/parse";
-import { convertMask } from "./SideBar";
 
-type DataMode = "Raw" | "Converted";
+const defaultFileName = (fileData: ParseResult) => {
+  const parts = [fileData.meta["Sample ID"], TY_NAMES[fileData.ty]];
+
+  if (
+    fileData.normalization[0] !== null ||
+    fileData.normalization[1] !== null
+  ) {
+    parts.push("Normalized");
+  }
+
+  return parts.join("-") + ".csv";
+};
 
 const ExportOverlay: Component<{
   fileData: ParseResult;
   onexport: () => void;
 }> = (props) => {
-  const [dataMode, setDataMode] = createSignal("Converted" as DataMode);
-  const [fileName, setFileName] = createSignal(null as string | null);
-
-  const autoFileName = () =>
-    props.fileData.meta["Sample ID"] +
-    "-" +
-    TY_NAMES[props.fileData.ty] +
-    "-" +
-    dataMode() +
-    ".csv";
+  const [fileName, setFileName] = createSignal(defaultFileName(props.fileData));
 
   const exportFn = () => {
     let text = dataLabels(props.fileData).join(";");
 
-    const convert: ((v: number) => string)[] = (() => {
-      switch (dataMode()) {
-        case "Raw":
-          return [
-            (v) => v.toString(),
-            (v) => v.toString(),
-            (v) => v.toString(),
-          ];
-        case "Converted":
-          return convertMask(props.fileData);
-      }
-    })();
-
     props.fileData.data.forEach((row) => {
       text +=
-        "\n" + row.map((c, i) => (c === null ? "" : convert[i](c))).join(";");
+        "\n" + row.map((c, i) => (c === null ? "" : c.toString())).join(";");
     });
 
     const el = document.createElement("a");
@@ -45,28 +33,11 @@ const ExportOverlay: Component<{
       "href",
       "data:text/plain;charset=utf-8," + encodeURIComponent(text)
     );
-    el.setAttribute(
-      "download",
-      fileName() === null ? autoFileName() : fileName()
-    );
+    el.setAttribute("download", fileName());
     el.click();
 
     props.onexport();
   };
-
-  const DataChoice: Component<{ mode: DataMode }> = (props) => (
-    <td
-      class={
-        "w-45 border-solid border-1 border-gray-500 px-1 pt-1 cursor-pointer " +
-        (dataMode() === props.mode
-          ? "bg-green-100 hover:bg-green-200 "
-          : "bg-gray-100 hover:bg-gray-200")
-      }
-      onclick={() => setDataMode(props.mode)}
-    >
-      {props.mode}
-    </td>
-  );
 
   return (
     <div class="w-full flex flex-row z-5 absolute">
@@ -91,19 +62,12 @@ const ExportOverlay: Component<{
               <input
                 class="w-full focus:outline-none"
                 type="text"
-                value={fileName() === null ? autoFileName() : fileName()}
+                value={fileName()}
                 onInput={(e) => {
                   setFileName(e.currentTarget.value);
                 }}
               />
             </td>
-          </tr>
-          <tr>
-            <td class="border-solid border-1 border-gray-500 px-1 pt-1 bg-green-100 w-25">
-              Data
-            </td>
-            <DataChoice mode="Raw" />
-            <DataChoice mode="Converted" />
           </tr>
           <tr>
             <td
