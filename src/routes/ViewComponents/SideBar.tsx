@@ -1,5 +1,6 @@
 import { Component, For, Switch, Match, createMemo } from "solid-js";
-import { ParseResult, dataLabels, XUnits, YUnits } from "../../lib/parse";
+import { ParseResult, XUnits, YUnits } from "../../lib/parse";
+import { dataLabels } from "../../lib/plot";
 
 const CONVERT_FNS: { [key: XUnits | YUnits]: (v: number) => string } = {
   Oe: (v: number) => v.toFixed(2),

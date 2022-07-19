@@ -13,15 +13,14 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
+import { ParseResult } from "../lib/parse";
 import {
-  ParseResult,
-  plotData,
-  convertUnits,
   normalize,
-  plotLabels,
   normValues,
+  convertUnits,
   resetFormatting,
-} from "../lib/parse";
+} from "../lib/format";
+import { plotLabels, plotData } from "../lib/plot";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";

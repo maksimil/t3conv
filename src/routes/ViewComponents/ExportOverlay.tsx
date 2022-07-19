@@ -1,5 +1,6 @@
 import { Component, createSignal } from "solid-js";
-import { TY_NAMES, ParseResult, dataLabels } from "../../lib/parse";
+import { TY_NAMES, ParseResult } from "../../lib/parse";
+import { dataLabels } from "../../lib/plot";
 
 const defaultFileName = (fileData: ParseResult) => {
   const parts = [fileData.meta["Sample ID"], TY_NAMES[fileData.ty]];
