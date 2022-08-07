@@ -11,14 +11,8 @@ import {
   batch,
 } from "solid-js";
 import { Route } from "../App";
-import { FileType, parseFile, TY_NAMES } from "../lib/parse";
+import { FileType, parseFile, FILE_TYPES } from "../lib/parse";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
-
-const TY_STYLES = [
-  "bg-red-50 hover:bg-red-100 ",
-  "bg-orange-50 hover:bg-orange-100 ",
-  "bg-blue-50 hover:bg-blue-100 ",
-];
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
   props
@@ -28,18 +22,15 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
       class={
         "w-full text-md text-left p-2 pr-5 " +
         "shadow-md hover:shadow-lg rounded-xl " +
-        TY_STYLES[props.item.ty] +
-        "flex flex-row"
+        "flex flex-row bg-green-50 hover:bg-green-100 "
       }
       onclick={props.onclick}
     >
       <div class="flex-1">{props.item.name}</div>
-      <div>{TY_NAMES[props.item.ty]}</div>
+      <div>{props.item.ty}</div>
     </button>
   );
 };
-
-const FILETYPES: FileType[] = [0, 1, 2];
 
 const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
   props
@@ -72,13 +63,13 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
                 "divide-y divide-gray-200 "
               }
             >
-              <For each={FILETYPES}>
+              <For each={FILE_TYPES}>
                 {(e, idx) => (
                   <button
                     class={
                       "text-xl text-center w-full hover:bg-gray-200 p-2 " +
                       (idx() === 0 ? "rounded-t-3xl " : "") +
-                      (idx() === FILETYPES.length - 1 ? "rounded-b-3xl " : "")
+                      (idx() === FILE_TYPES.length - 1 ? "rounded-b-3xl " : "")
                     }
                     onclick={() =>
                       batch(() => {
@@ -168,24 +159,12 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
                   ? "bg-green-50 hover:bg-green-100 hover:shadow-lg "
                   : "bg-gray-100 ")
               }
+              onclick={() => openNewFile(ty())}
             >
               Open file
             </button>
           </div>
           <TypeSetter tySignal={[ty, setTy]} />
-          {/* <select
-              class={
-              "flex-1 text-xl text-center p-2 mx-2 " +
-              "shadow-md rounded-3xl " +
-              (ty() !== null
-              ? "bg-green-50 hover:bg-green-100 hover:shadow-lg "
-              : "bg-gray-100 ")
-              }
-              >
-              <option class={"shadow-md rounded-3xl bg-green-50"} value="">
-              amgus
-              </option>
-              </select> */}
         </div>
         <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
           <For each={getHistory().reverse()}>

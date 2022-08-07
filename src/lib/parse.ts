@@ -49,8 +49,19 @@ export type ParseResult = {
   ty: FileType;
 };
 
-export type FileType = 0 | 1 | 2;
-export const TY_NAMES = ["DCD", "IRM", "Hyst"];
+export enum FileType {
+  LS_DCD = "LS7400VSM DCD",
+  LS_IRM = "LS7400VSM IRM",
+  LS_HYST = "LS7400VSM Hyst",
+}
+
+export const TY_SUFFIX: Record<FileType, string> = {
+  [FileType.LS_DCD]: "DCD",
+  [FileType.LS_IRM]: "IRM",
+  [FileType.LS_HYST]: "Hyst",
+};
+
+export const FILE_TYPES = Object.keys(TY_SUFFIX) as FileType[];
 
 export const parseFile = (source: string, ty: FileType): ParseResult | null => {
   let meta = {};
@@ -81,11 +92,11 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
   const data = (() => {
     switch (ty) {
       // DCD
-      case 0:
+      case FileType.LS_DCD:
         return cleanData(dataRead);
-      case 1:
+      case FileType.LS_IRM:
         return cleanData(dataRead);
-      case 2:
+      case FileType.LS_HYST:
         return dataRead;
     }
   })();

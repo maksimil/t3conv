@@ -1,15 +1,15 @@
-import { ParseResult, YUnits } from "./parse";
+import { FileType, ParseResult, YUnits } from "./parse";
 
 export const plotData = (source: ParseResult): [number[], number[]][] => {
   switch (source.ty) {
     // DCD
-    case 0:
+    case FileType.LS_DCD:
       return dcdPlotData(source.data);
     // IRM
-    case 1:
+    case FileType.LS_IRM:
       return irmPlotData(source.data);
     // Hyst
-    case 2:
+    case FileType.LS_HYST:
       return hystPlotData(source.data);
   }
 };

@@ -13,7 +13,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { ParseResult } from "../lib/parse";
+import { ParseResult, FileType } from "../lib/parse";
 import {
   normalize,
   normValues,
@@ -187,7 +187,11 @@ const View: Component<{
           labelShow="Convert"
           option="convert"
         />
-        <Show when={fileData.ty == 0 || fileData.ty == 1}>
+        <Show
+          when={
+            fileData.ty == FileType.LS_DCD || fileData.ty == FileType.LS_IRM
+          }
+        >
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}

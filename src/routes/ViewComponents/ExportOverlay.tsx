@@ -1,9 +1,9 @@
 import { Component, createSignal } from "solid-js";
-import { TY_NAMES, ParseResult } from "../../lib/parse";
+import { ParseResult, TY_SUFFIX } from "../../lib/parse";
 import { dataLabels } from "../../lib/plot";
 
 const defaultFileName = (fileData: ParseResult) => {
-  const parts = [fileData.meta["Sample ID"], TY_NAMES[fileData.ty]];
+  const parts = [fileData.meta["Sample ID"], TY_SUFFIX[fileData.ty]];
 
   if (
     fileData.normalization[0] !== null ||
