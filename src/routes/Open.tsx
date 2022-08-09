@@ -121,8 +121,8 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           const file = fileSelector.files[0];
 
           const rawdata = await file.text();
-          const data = parseFile(rawdata, ty);
           const name = file.name;
+          const data = parseFile(name, rawdata, ty);
 
           addHistory({ rawdata, name, ty });
           return data;
@@ -136,7 +136,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
       route: "view",
       data: async () => {
         addHistory(item);
-        return parseFile(item.rawdata, item.ty);
+        return parseFile(item.name, item.rawdata, item.ty);
       },
     });
   };

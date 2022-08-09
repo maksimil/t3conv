@@ -1,25 +1,17 @@
 import { Component, createSignal } from "solid-js";
-import { ParseResult, TY_SUFFIX } from "../../lib/parse";
+import { ParseResult } from "../../lib/parse";
 import { dataLabels } from "../../lib/plot";
 
-const defaultFileName = (fileData: ParseResult) => {
-  const parts = [fileData.meta["Sample ID"], TY_SUFFIX[fileData.ty]];
-
-  if (
-    fileData.normalization[0] !== null ||
-    fileData.normalization[1] !== null
-  ) {
-    parts.push("Normalized");
-  }
-
-  return parts.join("-") + ".csv";
-};
+const defaultFileName = (fileData: ParseResult) => fileData.name + ".csv";
 
 const ExportOverlay: Component<{
   fileData: ParseResult;
   onexport: () => void;
 }> = (props) => {
-  const [fileName, setFileName] = createSignal(defaultFileName(props.fileData));
+  const [rawFileName, setRawFileName] = createSignal(null);
+
+  const fileName = () =>
+    rawFileName() !== null ? rawFileName() : defaultFileName(props.fileData);
 
   const exportFn = () => {
     let text = dataLabels(props.fileData).join(";");
@@ -48,11 +40,11 @@ const ExportOverlay: Component<{
             <td
               class={
                 "border-solid border-1 border-gray-500 px-1 pt-1 w-25 " +
-                (fileName() === null
+                (rawFileName() === null
                   ? "bg-gray-100 "
                   : "bg-green-100 hover:bg-green-200 cursor-pointer ")
               }
-              onclick={() => setFileName(null)}
+              onclick={() => setRawFileName(null)}
             >
               Filename
             </td>
@@ -65,7 +57,7 @@ const ExportOverlay: Component<{
                 type="text"
                 value={fileName()}
                 onInput={(e) => {
-                  setFileName(e.currentTarget.value);
+                  setRawFileName(e.currentTarget.value);
                 }}
               />
             </td>

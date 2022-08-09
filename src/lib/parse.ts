@@ -4,6 +4,7 @@ export type XUnits = "Oe" | "A/m" | "T";
 export type YUnits = "emu" | "Am2";
 
 export type ParseResult = {
+  name: string;
   meta: string;
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
@@ -18,19 +19,17 @@ export enum FileType {
   LS_HYST = "LS7400VSM Hyst",
 }
 
-export const TY_SUFFIX: Record<FileType, string> = {
-  [FileType.LS_DCD]: "DCD",
-  [FileType.LS_IRM]: "IRM",
-  [FileType.LS_HYST]: "Hyst",
-};
+export const FILE_TYPES = Object.values(FileType);
 
-export const FILE_TYPES = Object.keys(TY_SUFFIX) as FileType[];
-
-export const parseFile = (source: string, ty: FileType): ParseResult | null => {
+export const parseFile = (
+  name: string,
+  source: string,
+  ty: FileType
+): ParseResult | null => {
   switch (ty) {
     case FileType.LS_DCD:
     case FileType.LS_IRM:
     case FileType.LS_HYST:
-      return parseLS(source, ty);
+      return parseLS(name, source, ty);
   }
 };

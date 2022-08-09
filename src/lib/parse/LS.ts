@@ -10,8 +10,11 @@ const dataregex = new RegExp(
   "gm"
 );
 
-export const parseLS = (source: string, ty: FileType): ParseResult | null => {
-  // console.log({ d: source.replaceAll("\r\n", "\n") });
+export const parseLS = (
+  name: string,
+  source: string,
+  ty: FileType
+): ParseResult | null => {
   const meta = source.replaceAll("\r\n", "\n").split("\n\n***DATA***")[0];
 
   const datamatch = [...source.matchAll(dataregex)];
@@ -48,6 +51,7 @@ export const parseLS = (source: string, ty: FileType): ParseResult | null => {
   const units = [unitmatch[1], unitmatch[2]] as [XUnits, YUnits];
 
   return {
+    name,
     meta,
     data,
     ty,
