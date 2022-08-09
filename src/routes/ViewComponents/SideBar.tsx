@@ -2,7 +2,7 @@ import { Component, For, Switch, Match, createMemo } from "solid-js";
 import { ParseResult, XUnits, YUnits } from "../../lib/parse";
 import { dataLabels } from "../../lib/plot";
 
-const CONVERT_FNS: { [key: XUnits | YUnits]: (v: number) => string } = {
+const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
   Oe: (v: number) => v.toFixed(2),
   "A/m": (v: number) => v.toFixed(0),
   T: (v: number) => v.toFixed(4),

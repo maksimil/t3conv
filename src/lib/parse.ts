@@ -4,7 +4,7 @@ export type XUnits = "Oe" | "A/m" | "T";
 export type YUnits = "emu" | "Am2";
 
 export type ParseResult = {
-  meta: [string, string][];
+  meta: string;
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];

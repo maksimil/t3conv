@@ -1,34 +1,5 @@
 import { FileType, ParseResult, XUnits, YUnits } from "../parse";
 
-const FIELDS = [
-  "Start Time",
-  "Time Completed",
-  "Elapsed Time",
-  "Sample ID",
-  "Experiment",
-  "Data File",
-  "Plot File",
-  "VSM Exp File",
-  "VSM Data File",
-];
-
-const enumeratedFields = (() => {
-  let i = 0;
-  let ret = [];
-
-  FIELDS.forEach((s) => {
-    i += 1;
-    ret.push([s, i]);
-  });
-  return ret;
-})();
-
-const metaregex = new RegExp(
-  enumeratedFields.map(([s, _]) => `${s}:\\s*(.*?)\\s*`).join("") +
-    "\\*\\*\\*DATA\\*\\*\\*",
-  "gm"
-);
-
 const unitregex = new RegExp(
   "^Field\\((.*?)\\)\\s*Moment\\((.*?)\\)\\s*$",
   "gm"
@@ -40,17 +11,8 @@ const dataregex = new RegExp(
 );
 
 export const parseLS = (source: string, ty: FileType): ParseResult | null => {
-  let meta = [];
-
-  const metamatch = [...source.matchAll(metaregex)][0];
-
-  if (metamatch == null || metamatch.length != 10) {
-    return null;
-  }
-
-  enumeratedFields.map(([s, i]) => {
-    meta.push([s, metamatch[i]]);
-  });
+  // console.log({ d: source.replaceAll("\r\n", "\n") });
+  const meta = source.replaceAll("\r\n", "\n").split("\n\n***DATA***")[0];
 
   const datamatch = [...source.matchAll(dataregex)];
 
