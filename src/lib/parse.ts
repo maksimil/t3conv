@@ -41,7 +41,7 @@ export type XUnits = "Oe" | "A/m" | "T";
 export type YUnits = "emu" | "Am2";
 
 export type ParseResult = {
-  meta: { [key: string]: string };
+  meta: [string, string][];
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];
@@ -64,7 +64,7 @@ export const TY_SUFFIX: Record<FileType, string> = {
 export const FILE_TYPES = Object.keys(TY_SUFFIX) as FileType[];
 
 export const parseFile = (source: string, ty: FileType): ParseResult | null => {
-  let meta = {};
+  let meta = [];
 
   const metamatch = [...source.matchAll(metaregex)][0];
 
@@ -73,7 +73,7 @@ export const parseFile = (source: string, ty: FileType): ParseResult | null => {
   }
 
   enumeratedFields.map(([s, i]) => {
-    meta[s] = metamatch[i];
+    meta.push([s, metamatch[i]]);
   });
 
   const datamatch = [...source.matchAll(dataregex)];
