@@ -57,15 +57,15 @@ export const dataLabels = (data: ParseResult): string[] => {
   );
   switch (data.ty) {
     // DCD, IRM
-    case 0:
-    case 1:
+    case FileType.LS_DCD:
+    case FileType.LS_IRM:
       return [
         `Field(${data.units[0]})`,
         `TotalM(${yunits})`,
         `Remanence(${yunits})`,
       ];
     // Hyst
-    case 2:
+    case FileType.LS_HYST:
       if (data.normalization[0] !== null || data.normalization[1] !== null) {
         return [`Field(${data.units[0]})`, `Magnetization(${yunits})`];
       } else {
