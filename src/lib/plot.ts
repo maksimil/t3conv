@@ -10,6 +10,7 @@ export const plotData = (source: ParseResult): [number[], number[]][] => {
       return irmPlotData(source.data);
     // Hyst
     case FileType.LS_HYST:
+    case FileType.PR_HYST:
       return hystPlotData(source.data);
   }
 };
@@ -66,6 +67,7 @@ export const dataLabels = (data: ParseResult): string[] => {
       ];
     // Hyst
     case FileType.LS_HYST:
+    case FileType.PR_HYST:
       if (data.normalization[0] !== null || data.normalization[1] !== null) {
         return [`Field(${data.units[0]})`, `Magnetization(${yunits})`];
       } else {
