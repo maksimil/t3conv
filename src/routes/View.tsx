@@ -187,11 +187,7 @@ const View: Component<{
           labelShow="Convert"
           option="convert"
         />
-        <Show
-          when={
-            fileData.ty == FileType.LS_DCD || fileData.ty == FileType.LS_IRM
-          }
-        >
+        <Show when={fileData.data[0].length === 3}>
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}
