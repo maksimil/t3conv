@@ -19,6 +19,8 @@ export enum FileType {
   LS_IRM = "LS7400VSM IRM",
   LS_HYST = "LS7400VSM Hyst",
   PR_HYST = "Princeton Hyst",
+  PR_IRMDCD_IRM = "Princeton IRM+DCD as IRM",
+  PR_IRMDCD_DCD = "Princeton IRM+DCD as DCD",
 }
 
 export const FILE_TYPES = Object.values(FileType);
@@ -34,6 +36,8 @@ export const parseFile = (
     case FileType.LS_HYST:
       return parseLS(name, source, ty);
     case FileType.PR_HYST:
+    case FileType.PR_IRMDCD_IRM:
+    case FileType.PR_IRMDCD_DCD:
       return parsePrinceton(name, source, ty);
   }
 };

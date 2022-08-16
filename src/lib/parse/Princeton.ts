@@ -1,9 +1,5 @@
 import { FileType, ParseResult, XUnits, YUnits } from "../parse";
 
-const unitsRegex = /\s*Field\s*Moment\s*Temperature\s*\((.*?)\)\s*\((.*?)\)/gm;
-
-const dataRegex = /^([0-9E+\-\.]*?),([0-9E+\-\.]*?),[0-9E+\-\.]*?$/gm;
-
 export const parsePrinceton = (
   name: string,
   source: string,
@@ -17,7 +13,7 @@ export const parsePrinceton = (
     const headings = [
       datapart
         .shift()
-        .split(/\s+/)
+        .split(/\s{2,}/)
         .filter((e) => e != ""),
       datapart
         .shift()
@@ -44,14 +40,16 @@ export const parsePrinceton = (
 
     return [headings, segments.filter((c) => c.length > 0)];
   })();
-  console.log(headings, segments);
 
   // data
   const data = (() => {
     switch (ty) {
       case FileType.PR_HYST:
-        const dataRead = segments.flat();
-        return dataRead.map((v) => [v[0], v[1]]);
+        return extractHyst(ty, headings, segments);
+
+      case FileType.PR_IRMDCD_DCD:
+      case FileType.PR_IRMDCD_IRM:
+        return extractIrmdcd(ty, headings, segments);
     }
   })();
 
@@ -67,4 +65,30 @@ export const parsePrinceton = (
     initUnits: units,
     normalization: [null, null],
   };
+};
+
+const extractHyst = (
+  _ty: FileType,
+  _headings: string[][],
+  segments: number[][]
+): number[][] => {
+  const dataRead = segments.flat();
+  return dataRead.map((v) => [v[0], v[1]]);
+};
+
+const extractIrmdcd = (
+  ty: FileType,
+  headings: string[][],
+  segments: number[][]
+): number[][] => {
+  const dataRead =
+    segments[{ [FileType.PR_IRMDCD_IRM]: 0, [FileType.PR_IRMDCD_DCD]: 1 }[ty]];
+
+  console.log(dataRead);
+
+  if (headings[0].length > 2 && headings[0][2] === "Direct Moment") {
+    return dataRead.map((v) => [v[0], v[1], v[2]]);
+  } else {
+    return dataRead.map((v) => [v[0], v[1]]);
+  }
 };

@@ -32,7 +32,6 @@ export const parseLS = (
 
   const data = (() => {
     switch (ty) {
-      // DCD
       case FileType.LS_DCD:
         return cleanData(dataRead);
       case FileType.LS_IRM:
@@ -82,10 +81,10 @@ const cleanData = (read: [number, number][]): number[][] => {
   while (i < read.length) {
     if (!isz(read[i][0])) {
       if (isz(read[i + 1][0])) {
-        res.push([read[i][0], read[i][1], read[i + 1][1]]);
+        res.push([read[i][0], read[i + 1][1], read[i][1]]);
         i += 2;
       } else {
-        res.push([read[i][0], read[i][1], null]);
+        res.push([read[i][0], null, read[i][1]]);
         i += 1;
       }
     } else {

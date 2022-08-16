@@ -2,20 +2,21 @@ import { FileType, ParseResult, YUnits } from "./parse";
 
 export const plotData = (source: ParseResult): [number[], number[]][] => {
   switch (source.ty) {
-    // DCD
     case FileType.LS_DCD:
-      return dcdPlotData(source.data);
-    // IRM
     case FileType.LS_IRM:
-      return irmPlotData(source.data);
-    // Hyst
+      return lsIrmdcdPlotData(source.data);
+
     case FileType.LS_HYST:
     case FileType.PR_HYST:
       return hystPlotData(source.data);
+
+    case FileType.PR_IRMDCD_DCD:
+    case FileType.PR_IRMDCD_IRM:
+      return prIrmdcdPlotData(source.data);
   }
 };
 
-const tPlotData = (data: number[][]): [number[], number[]][] => {
+const lsIrmdcdPlotData = (data: number[][]): [number[], number[]][] => {
   let n1: [number[], number[]] = [[], []];
   let n2: [number[], number[]] = [[], []];
 
@@ -29,16 +30,23 @@ const tPlotData = (data: number[][]): [number[], number[]][] => {
     }
   });
 
-  return [n2, n1];
+  return [n1, n2];
 };
-
-const dcdPlotData = tPlotData;
-
-const irmPlotData = tPlotData;
 
 const hystPlotData = (data: number[][]): [number[], number[]][] => [
   [data.map((v) => v[0]), data.map((v) => v[1])],
 ];
+
+const prIrmdcdPlotData = (data: number[][]): [number[], number[]][] => {
+  if (data[0].length === 2) {
+    return [[data.map((v) => v[0]), data.map((v) => v[1])]];
+  } else {
+    return [
+      [data.map((v) => v[0]), data.map((v) => v[1])],
+      [data.map((v) => v[0]), data.map((v) => v[2])],
+    ];
+  }
+};
 
 const normUnits = (unit: YUnits, mass: boolean, volume: boolean): string => {
   const mask = (mass ? 1 : 0) * 2 + (volume ? 1 : 0) * 1;
@@ -57,15 +65,20 @@ export const dataLabels = (data: ParseResult): string[] => {
     data.normalization[1] !== null
   );
   switch (data.ty) {
-    // DCD, IRM
     case FileType.LS_DCD:
     case FileType.LS_IRM:
-      return [
-        `Field(${data.units[0]})`,
-        `TotalM(${yunits})`,
-        `Remanence(${yunits})`,
-      ];
-    // Hyst
+    case FileType.PR_IRMDCD_DCD:
+    case FileType.PR_IRMDCD_IRM:
+      if (data.data[0].length === 3) {
+        return [
+          `Field(${data.units[0]})`,
+          `Remanence(${yunits})`,
+          `TotalM(${yunits})`,
+        ];
+      } else {
+        return [`Field(${data.units[0]})`, `Remanence(${yunits})`];
+      }
+
     case FileType.LS_HYST:
     case FileType.PR_HYST:
       if (data.normalization[0] !== null || data.normalization[1] !== null) {

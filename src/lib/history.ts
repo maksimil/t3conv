@@ -20,7 +20,7 @@ export const getHistory = (): HistoryItem[] => {
 };
 
 export const addHistory = (item: HistoryItem) => {
-  let hs = getHistory().filter((v) => v.name != item.name);
+  let hs = getHistory().filter((v) => v.name !== item.name || v.ty !== item.ty);
   hs.push(item);
   while (hs.length > HS_LENGTH) {
     hs.shift();

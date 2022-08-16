@@ -9,6 +9,7 @@ import {
   onMount,
   createEffect,
   batch,
+  onCleanup,
 } from "solid-js";
 import { Route } from "../App";
 import { FileType, parseFile, FILE_TYPES } from "../lib/parse";
@@ -40,10 +41,16 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
 
   let mainRef: HTMLDivElement, openRef: HTMLDivElement;
 
+  const onWindowResize = () => {
+    openRef.style.width = `${mainRef.clientWidth}px`;
+  };
+
   onMount(() => {
-    window.addEventListener("resize", () => {
-      openRef.style.width = `${mainRef.clientWidth}px`;
-    });
+    window.addEventListener("resize", onWindowResize);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("resize", onWindowResize);
   });
 
   createEffect(() => {
@@ -145,11 +152,12 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
     <div class="w-full h-full flex items-center justify-center bg-gray-100">
       <div
         class={
-          "w-3/5 h-3/5 bg-gray-50 rounded-3xl shadow-lg p-4 " +
+          "w-3/5 h-3/5 bg-gray-50 rounded-3xl shadow-lg p-4 pb-2 " +
           "space-y-4 flex flex-col"
         }
       >
         <div class="flex flex-row">
+          <TypeSetter tySignal={[ty, setTy]} />
           <div class="flex-1 flex flex-row">
             <button
               class={
@@ -157,14 +165,14 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
                 "shadow-md rounded-3xl " +
                 (ty() !== null
                   ? "bg-green-50 hover:bg-green-100 hover:shadow-lg "
-                  : "bg-gray-100 ")
+                  : "bg-gray-100 cursor-default ")
               }
+              disabled={!ty()}
               onclick={() => openNewFile(ty())}
             >
               Open file
             </button>
           </div>
-          <TypeSetter tySignal={[ty, setTy]} />
         </div>
         <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
           <For each={getHistory().reverse()}>
