@@ -1,49 +1,97 @@
 import { FileType, ParseResult, YUnits } from "./parse";
 
-export const plotData = (source: ParseResult): [number[], number[]][] => {
+type PlotData = {
+  x: number[];
+  y: number[];
+  name: string;
+  color: 0 | 1;
+};
+
+export const plotData = (source: ParseResult): PlotData[] => {
   switch (source.ty) {
     case FileType.LS_DCD:
     case FileType.LS_IRM:
-      return lsIrmdcdPlotData(source.data);
+      return lsIrmdcdPlotData(source);
 
     case FileType.LS_HYST:
     case FileType.PR_HYST:
-      return hystPlotData(source.data);
+      return hystPlotData(source);
 
     case FileType.PR_IRMDCD_DCD:
     case FileType.PR_IRMDCD_IRM:
-      return prIrmdcdPlotData(source.data);
+      return prIrmdcdPlotData(source);
   }
 };
 
-const lsIrmdcdPlotData = (data: number[][]): [number[], number[]][] => {
-  let n1: [number[], number[]] = [[], []];
-  let n2: [number[], number[]] = [[], []];
+const lsIrmdcdPlotData = (source: ParseResult): PlotData[] => {
+  const labels = dataLabels(source);
 
-  data.forEach(([x, y1, y2]) => {
-    n1[0].push(x);
-    n1[1].push(y1);
+  let n1: PlotData = {
+    x: [],
+    y: [],
+    name: labels[1],
+    color: 0,
+  };
+
+  let n2: PlotData = {
+    x: [],
+    y: [],
+    name: labels[2],
+    color: 1,
+  };
+
+  source.data.forEach(([x, y1, y2]) => {
+    n1.x.push(x);
+    n1.y.push(y1);
 
     if (y2 != null) {
-      n2[0].push(x);
-      n2[1].push(y2);
+      n2.x.push(x);
+      n2.y.push(y2);
     }
   });
 
   return [n1, n2];
 };
 
-const hystPlotData = (data: number[][]): [number[], number[]][] => [
-  [data.map((v) => v[0]), data.map((v) => v[1])],
-];
+const hystPlotData = (source: ParseResult): PlotData[] => {
+  const labels = dataLabels(source);
+  return [
+    {
+      x: source.data.map((v) => v[0]),
+      y: source.data.map((v) => v[1]),
+      name: labels[1],
+      color: 0,
+    },
+  ];
+};
 
-const prIrmdcdPlotData = (data: number[][]): [number[], number[]][] => {
-  if (data[0].length === 2) {
-    return [[data.map((v) => v[0]), data.map((v) => v[1])]];
+const prIrmdcdPlotData = (source: ParseResult): PlotData[] => {
+  const labels = dataLabels(source);
+  const x = source.data.map((v) => v[0]);
+
+  if (source.data[0].length === 2) {
+    return [
+      {
+        x,
+        y: source.data.map((v) => v[1]),
+        name: labels[1],
+        color: 0,
+      },
+    ];
   } else {
     return [
-      [data.map((v) => v[0]), data.map((v) => v[1])],
-      [data.map((v) => v[0]), data.map((v) => v[2])],
+      {
+        x,
+        y: source.data.map((v) => v[1]),
+        name: labels[1],
+        color: 0,
+      },
+      {
+        x,
+        y: source.data.map((v) => v[2]),
+        name: labels[2],
+        color: 1,
+      },
     ];
   }
 };

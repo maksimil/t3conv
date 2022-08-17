@@ -60,6 +60,8 @@ const CONFIG = {
   scrollZoom: true,
 };
 
+const PLOT_COLORS = ["rgb(31, 119, 180)", "rgb(255, 127, 14)"];
+
 export type LineMode = { lines: boolean; markers: boolean };
 
 const View: Component<{
@@ -74,21 +76,36 @@ const View: Component<{
     markers: true,
   } as LineMode);
 
-  const plotDataMemo = createMemo(() => {
+  const plotDataMemo = createMemo(() => plotData(fileData));
+
+  const lineModeS = () => {
     let mode = Object.keys(lineMode)
       .filter((v) => lineMode[v])
       .join("+");
     if (mode === "") {
       mode = "lines";
     }
-    return plotData(fileData).map(([x, y]) => ({
-      x,
-      y,
-      mode,
-      line: { width: 1 },
-      hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
-    }));
+    return mode;
+  };
+
+  const convertPlotly = ({ x, y, name, color }) => ({
+    x,
+    y,
+    mode: lineModeS(),
+    name,
+    line: { width: 1, color: PLOT_COLORS[color] },
+    hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
   });
+
+  const getPlotData = () => {
+    if (showTCurve()) {
+      return plotDataMemo().map(convertPlotly);
+    } else {
+      return plotDataMemo()
+        .filter(({ color }) => color !== 1)
+        .map(convertPlotly);
+    }
+  };
 
   const plotLayout = () => {
     const [xtitle, ytitle] = plotLabels(fileData);
@@ -100,7 +117,14 @@ const View: Component<{
         b: 100,
         t: 40,
       },
-      showlegend: false,
+      showlegend: true,
+      legend: {
+        x: 0,
+        y: 1,
+        font: {
+          color: "#000",
+        },
+      },
       xaxis: {
         title: xtitle,
         exponentformat: "e",
@@ -116,14 +140,6 @@ const View: Component<{
         linewidth: 1,
       },
     };
-  };
-
-  const getPlotData = () => {
-    if (showTCurve()) {
-      return plotDataMemo();
-    } else {
-      return [plotDataMemo()[0]];
-    }
   };
 
   let screenRef: HTMLDivElement,
