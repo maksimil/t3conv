@@ -1,6 +1,5 @@
 import { Component, For, Switch, Match, createMemo } from "solid-js";
 import { ParseResult, XUnits, YUnits } from "../../lib/parse";
-import { dataLabels } from "../../lib/plot";
 
 const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
   Oe: (v: number) => v.toFixed(2),
@@ -24,7 +23,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
       <table class="border-separate" style="border-spacing:0;">
         <thead class="sticky top-0 z-2 bg-green-100">
           <tr class="divide-x divide-gray-400">
-            <For each={dataLabels(props.fileData)}>
+            <For each={props.fileData.getDataLabels()}>
               {(lbl) => (
                 <th
                   class={

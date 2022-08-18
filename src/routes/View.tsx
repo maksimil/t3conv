@@ -13,14 +13,14 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { ParseResult, FileType } from "../lib/parse";
+import { ParseResult } from "../lib/parse";
+import { plotLabels } from "../lib/plot";
 import {
   normalize,
   normValues,
   convertUnits,
   resetFormatting,
 } from "../lib/format";
-import { plotLabels, plotData } from "../lib/plot";
 import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
@@ -76,7 +76,7 @@ const View: Component<{
     markers: true,
   } as LineMode);
 
-  const plotDataMemo = createMemo(() => plotData(fileData));
+  const plotDataMemo = createMemo(() => fileData.getPlotData());
 
   const lineModeS = () => {
     let mode = Object.keys(lineMode)

@@ -1,18 +1,37 @@
 import { parseLS } from "./parse/LS";
-import { parsePrinceton } from "./parse/Princeton";
+// import { parsePrinceton } from "./parse/Princeton";
 
 export type XUnits = "Oe" | "A/m" | "T";
 export type YUnits = "emu" | "Am2";
 
-export type ParseResult = {
+export enum PlotColor {
+  PRIMARY = 0,
+  SECONDARY = 1,
+}
+
+type PlotData = {
+  x: number[];
+  y: number[];
+  name: string;
+  color: PlotColor;
+};
+
+export interface ParseResult {
+  // meta
   name: string;
   meta: string;
+  ty: FileType;
+
+  // data for conversion
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];
   data: number[][];
-  ty: FileType;
-};
+
+  // interfaces for plotting
+  getDataLabels(): string[];
+  getPlotData(): PlotData[];
+}
 
 export enum FileType {
   LS_DCD = "LS7400VSM DCD",
@@ -35,9 +54,9 @@ export const parseFile = (
     case FileType.LS_IRM:
     case FileType.LS_HYST:
       return parseLS(name, source, ty);
-    case FileType.PR_HYST:
-    case FileType.PR_IRMDCD_IRM:
-    case FileType.PR_IRMDCD_DCD:
-      return parsePrinceton(name, source, ty);
+    // case FileType.PR_HYST:
+    // case FileType.PR_IRMDCD_IRM:
+    // case FileType.PR_IRMDCD_DCD:
+    //   return parsePrinceton(name, source, ty);
   }
 };

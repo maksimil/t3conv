@@ -1,6 +1,5 @@
 import { Component, createSignal } from "solid-js";
 import { ParseResult } from "../../lib/parse";
-import { dataLabels } from "../../lib/plot";
 
 const defaultFileName = (fileData: ParseResult) => fileData.name + ".csv";
 
@@ -14,11 +13,10 @@ const ExportOverlay: Component<{
     rawFileName() !== null ? rawFileName() : defaultFileName(props.fileData);
 
   const exportFn = () => {
-    let text = dataLabels(props.fileData).join(";");
+    let text = props.fileData.getDataLabels().join(";");
 
     props.fileData.data.forEach((row) => {
-      text +=
-        "\n" + row.map((c, i) => (c === null ? "" : c.toString())).join(";");
+      text += "\n" + row.map((c) => (c === null ? "" : c.toString())).join(";");
     });
 
     const el = document.createElement("a");
