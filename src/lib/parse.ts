@@ -1,5 +1,5 @@
 import { parseLS } from "./parse/LS";
-// import { parsePrinceton } from "./parse/Princeton";
+import { parsePrinceton } from "./parse/Princeton";
 
 export type XUnits = "Oe" | "A/m" | "T";
 export type YUnits = "emu" | "Am2";
@@ -37,9 +37,7 @@ export enum FileType {
   LS_DCD = "LS7400VSM DCD",
   LS_IRM = "LS7400VSM IRM",
   LS_HYST = "LS7400VSM Hyst",
-  // PR_HYST = "Princeton Hyst",
-  // PR_IRMDCD_IRM = "Princeton IRM+DCD as IRM",
-  // PR_IRMDCD_DCD = "Princeton IRM+DCD as DCD",
+  PRINCETON = "Princeton",
 }
 
 export const FILE_TYPES = Object.values(FileType);
@@ -54,9 +52,7 @@ export const parseFile = (
     case FileType.LS_IRM:
     case FileType.LS_HYST:
       return parseLS(name, source, ty);
-    // case FileType.PR_HYST:
-    // case FileType.PR_IRMDCD_IRM:
-    // case FileType.PR_IRMDCD_DCD:
-    //   return parsePrinceton(name, source, ty);
+    case FileType.PRINCETON:
+      return parsePrinceton(name, source, ty);
   }
 };

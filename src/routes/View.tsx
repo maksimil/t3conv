@@ -13,7 +13,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Route } from "../App";
-import { ParseResult } from "../lib/parse";
+import { ParseResult, PlotColor } from "../lib/parse";
 import { plotLabels } from "../lib/plot";
 import {
   normalize,
@@ -95,6 +95,7 @@ const View: Component<{
     name,
     line: { width: 1, color: PLOT_COLORS[color] },
     hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
+    showlegend: name !== "",
   });
 
   const getPlotData = () => {
@@ -203,7 +204,9 @@ const View: Component<{
           labelShow="Convert"
           option="convert"
         />
-        <Show when={fileData.data[0].length === 3}>
+        <Show
+          when={plotDataMemo().some((v) => v.color === PlotColor.SECONDARY)}
+        >
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}
