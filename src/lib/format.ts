@@ -23,9 +23,13 @@ export const convertUnits = (
 
   setter("units", units);
 
-  for (let i = 0; i < data.data.length; i++) {
-    for (let j = 0; j < data.data[i].length; j++) {
-      setter("data", i, j, (d) => (d !== null ? d * convertMask[j] : null));
+  for (let k = 0; k < data.data.length; k++) {
+    for (let i = 0; i < data.data[k].length; i++) {
+      for (let j = 0; j < data.data[k][i].length; j++) {
+        setter("data", k, i, j, (d) =>
+          d !== null ? d * convertMask[j] : null
+        );
+      }
     }
   }
 };
@@ -72,9 +76,11 @@ export const normalize = (
     (null1(data.normalization[0]) * null1(data.normalization[1])) /
     (nvolume * nmass);
 
-  for (let i = 0; i < data.data.length; i++) {
-    for (let j = 1; j < data.data[i].length; j++) {
-      setter("data", i, j, (d) => d * ddiv);
+  for (let k = 0; k < data.data.length; k++) {
+    for (let i = 0; i < data.data[k].length; i++) {
+      for (let j = 1; j < data.data[k][i].length; j++) {
+        setter("data", k, i, j, (d) => d * ddiv);
+      }
     }
   }
 

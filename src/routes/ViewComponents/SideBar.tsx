@@ -38,7 +38,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
           </tr>
         </thead>
         <tbody>
-          <For each={props.fileData.data}>
+          <For each={props.fileData.data.flat(1)}>
             {(row, rowi) => (
               <tr class="divide-x divide-gray-400 ">
                 <For each={row}>

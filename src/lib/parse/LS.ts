@@ -24,7 +24,7 @@ class LSParseResult implements ParseResult {
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];
-  data: number[][];
+  data: number[][][];
 
   constructor(name: string, source: string, ty: FileType) {
     this.name = name;
@@ -44,15 +44,17 @@ class LSParseResult implements ParseResult {
       ];
     });
 
-    this.data = (() => {
-      switch (ty) {
-        case FileType.LS_DCD:
-        case FileType.LS_IRM:
-          return cleanData(dataRead);
-        case FileType.LS_HYST:
-          return dataRead;
-      }
-    })();
+    this.data = [
+      (() => {
+        switch (ty) {
+          case FileType.LS_DCD:
+          case FileType.LS_IRM:
+            return cleanData(dataRead);
+          case FileType.LS_HYST:
+            return dataRead;
+        }
+      })(),
+    ];
 
     const unitmatch = [...source.matchAll(unitregex)][0];
 
@@ -67,7 +69,7 @@ class LSParseResult implements ParseResult {
   }
 
   getPlotData() {
-    const x = this.data.map((v) => v[0]);
+    const x = this.data[0].map((v) => v[0]);
     const labels = this.getDataLabels();
 
     switch (this.ty) {
@@ -75,7 +77,7 @@ class LSParseResult implements ParseResult {
         return [
           {
             x,
-            y: this.data.map((v) => v[1]),
+            y: this.data[0].map((v) => v[1]),
             name: labels[1],
             color: PlotColor.PRIMARY,
           },
@@ -83,11 +85,11 @@ class LSParseResult implements ParseResult {
 
       case FileType.LS_DCD:
       case FileType.LS_IRM:
-        const filteredData = this.data.filter((v) => v[2] !== null);
+        const filteredData = this.data[0].filter((v) => v[2] !== null);
         return [
           {
             x,
-            y: this.data.map((v) => v[1]),
+            y: this.data[0].map((v) => v[1]),
             name: labels[1],
             color: PlotColor.PRIMARY,
           },

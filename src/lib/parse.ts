@@ -26,7 +26,7 @@ export interface ParseResult {
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
   normalization: [number | null, number | null];
-  data: number[][];
+  data: number[][][];
 
   // interfaces for plotting
   getDataLabels(): string[];
@@ -37,9 +37,9 @@ export enum FileType {
   LS_DCD = "LS7400VSM DCD",
   LS_IRM = "LS7400VSM IRM",
   LS_HYST = "LS7400VSM Hyst",
-  PR_HYST = "Princeton Hyst",
-  PR_IRMDCD_IRM = "Princeton IRM+DCD as IRM",
-  PR_IRMDCD_DCD = "Princeton IRM+DCD as DCD",
+  // PR_HYST = "Princeton Hyst",
+  // PR_IRMDCD_IRM = "Princeton IRM+DCD as IRM",
+  // PR_IRMDCD_DCD = "Princeton IRM+DCD as DCD",
 }
 
 export const FILE_TYPES = Object.values(FileType);

@@ -15,8 +15,11 @@ const ExportOverlay: Component<{
   const exportFn = () => {
     let text = props.fileData.getDataLabels().join(";");
 
-    props.fileData.data.forEach((row) => {
-      text += "\n" + row.map((c) => (c === null ? "" : c.toString())).join(";");
+    props.fileData.data.forEach((segment) => {
+      segment.forEach((row) => {
+        text +=
+          "\n" + row.map((c) => (c === null ? "" : c.toString())).join(";");
+      });
     });
 
     const el = document.createElement("a");
