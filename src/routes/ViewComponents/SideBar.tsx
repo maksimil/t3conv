@@ -39,7 +39,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
         </thead>
         <tbody>
           <For each={props.fileData.data.flat(1)}>
-            {(row, rowi) => (
+            {(row) => (
               <tr class="divide-x divide-gray-400 ">
                 <For each={row}>
                   {(x, i) => (
@@ -48,7 +48,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
                         <td
                           class={
                             "pt-1 px-1 text-right " +
-                            (rowi() > 0 ? "border-t-1 border-gray-400 " : "")
+                            "border-b-1 border-gray-400 "
                           }
                         >
                           {maskMemo()[i()](x)}
@@ -58,7 +58,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
                         <td
                           class={
                             "bg-red-100 pt-1 px-1 text-right " +
-                            (rowi() > 0 ? "border-t-1 border-gray-400 " : "")
+                            "border-b-1 border-gray-400 "
                           }
                         >
                           -

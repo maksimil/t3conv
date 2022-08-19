@@ -32,6 +32,12 @@ const splitData = (data: string): [string[][], number[][][]] => {
   return [headings, segments.filter((c) => c.length > 0)];
 };
 
+const UNITS: { [name: string]: [XUnits, YUnits] } = {
+  "Hybrid SI": ["T", "Am2"],
+  SI: ["A/m", "Am2"],
+  cgs: ["Oe", "emu"],
+};
+
 class PrincetonParseResult implements ParseResult {
   // meta
   name: string;
@@ -49,7 +55,8 @@ class PrincetonParseResult implements ParseResult {
 
   constructor(name: string, source: string, ty: FileType) {
     // meta
-    const split = source.replaceAll("\r\n", "\n").split(/\n\n\s*\n/);
+    const split = source.replaceAll("\r\n", "\n").split(/\n\n\s+/);
+    console.log(split);
     this.name = name;
     this.meta = split[0];
     this.ty = ty;
@@ -57,21 +64,19 @@ class PrincetonParseResult implements ParseResult {
     // data
     const [headings, segments] = splitData(split[1]);
 
-    const length = headings[0][2] === "Direct Moment" ? 3 : 2;
+    const headers = headings[0][0] === "Raw" ? headings[1] : headings[0];
+
+    const length = headers[2] === "Direct Moment" ? 3 : 2;
     this.data = segments.map((segment) =>
       segment.map((row) => row.slice(0, length))
     );
-    this.headings = headings[0]
+    this.headings = headers
       .slice(0, length)
       .map((v) => (v === "Direct Moment" ? "TotalM" : v));
 
-    this.units = [
-      headings[1][0].match(/\((.*)\)/)[1] as XUnits,
-      [headings[1][1].match(/\((.*)\)/)[1]].map((v) =>
-        v === "Am?" ? "Am2" : v
-      )[0] as YUnits,
-    ];
-    this.initUnits = this.units;
+    // units
+    this.units =
+      UNITS[this.meta.match(/Units of measure\s*(Hybrid SI|SI|cgs)/)[1]];
 
     this.normalization = [null, null];
   }
