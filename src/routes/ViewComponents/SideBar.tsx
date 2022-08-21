@@ -5,7 +5,7 @@ const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
   [XUnits.Oe]: (v: number) => v.toFixed(2),
   [XUnits.Am]: (v: number) => v.toFixed(0),
   [XUnits.T]: (v: number) => v.toFixed(4),
-  [XUnits.mT]: (v: number) => v.toFixed(4),
+  [XUnits.mT]: (v: number) => v.toFixed(2),
   [YUnits.emu]: (v: number) => v.toExponential(5),
   [YUnits.Am2]: (v: number) => v.toExponential(5),
 };
