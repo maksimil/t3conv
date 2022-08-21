@@ -123,6 +123,7 @@ const View: Component<{
     const [xtitle, ytitle] = plotLabels(fileData);
 
     return {
+      title: { text: fileData.name, font: { color: "#000" } },
       margin: {
         l: 100,
         r: 80,
