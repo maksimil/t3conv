@@ -1,4 +1,4 @@
-import { FileType, ParseResult, YUnits } from "./parse";
+import { ParseResult, YUnits } from "./parse";
 
 export const normUnits = (
   unit: YUnits,
@@ -7,9 +7,9 @@ export const normUnits = (
 ): string => {
   const mask = (mass ? 1 : 0) * 2 + (volume ? 1 : 0) * 1;
   switch (unit) {
-    case "emu":
+    case YUnits.emu:
       return ["emu", "emu/cm3", "emu/g", "emu/(g*cm3)"][mask];
-    case "Am2":
+    case YUnits.Am2:
       return ["Am2", "A/m", "Am2/kg", "A/(kg*m)"][mask];
   }
 };

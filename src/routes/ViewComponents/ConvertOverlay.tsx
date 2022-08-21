@@ -1,5 +1,5 @@
-import { Component, createSignal } from "solid-js";
-import { XUnits, YUnits } from "../../lib/parse";
+import { Component, createSignal, For } from "solid-js";
+import { XUNITS, YUNITS, XUnits, YUnits } from "../../lib/parse";
 
 const ConvertOverlay: Component<{
   units: [XUnits, YUnits];
@@ -26,9 +26,9 @@ const ConvertOverlay: Component<{
                   );
                 }}
               >
-                <option value="Oe">Oe</option>
-                <option value="A/m">A/m</option>
-                <option value="T">T</option>
+                <For each={XUNITS}>
+                  {(unit) => <option value={unit}>{unit}</option>}
+                </For>
               </select>
             </td>
           </tr>
@@ -46,8 +46,9 @@ const ConvertOverlay: Component<{
                   );
                 }}
               >
-                <option value="emu">emu</option>
-                <option value="Am2">Am2</option>
+                <For each={YUNITS}>
+                  {(unit) => <option value={unit}>{unit}</option>}
+                </For>
               </select>
             </td>
           </tr>

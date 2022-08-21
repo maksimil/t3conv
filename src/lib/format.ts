@@ -5,11 +5,11 @@ import { batch } from "solid-js";
 const FPI = 4 * Math.PI;
 
 const CONVERT_PROPS = {
-  Oe: FPI * 10_000,
-  "A/m": 10_000_000,
-  T: FPI,
-  emu: 1_000,
-  Am2: 1,
+  [XUnits.Oe]: FPI * 10_000,
+  [XUnits.Am]: 10_000_000,
+  [XUnits.T]: FPI,
+  [YUnits.emu]: 1_000,
+  [YUnits.Am2]: 1,
 };
 
 export const convertUnits = (
@@ -46,10 +46,10 @@ export const normalize = (
     } else {
       switch (data.units[1]) {
         // from mg to g
-        case "emu":
+        case YUnits.emu:
           return [mass / 1_000, true];
         // from mg to kg
-        case "Am2":
+        case YUnits.Am2:
           return [mass / 1_000_000, true];
       }
     }
@@ -61,10 +61,10 @@ export const normalize = (
     } else {
       switch (data.units[1]) {
         // from cm3 to cm3
-        case "emu":
+        case YUnits.emu:
           return [volume, true];
         // from cm3 to m3
-        case "Am2":
+        case YUnits.Am2:
           return [volume / 1_000_000, true];
       }
     }
@@ -94,9 +94,9 @@ export const normValues = (data: ParseResult): [number, number] => {
     }
 
     switch (data.units[1]) {
-      case "emu":
+      case YUnits.emu:
         return data.normalization[0] * 1_000;
-      case "Am2":
+      case YUnits.Am2:
         return data.normalization[0] * 1_000_000;
     }
   })();
@@ -107,9 +107,9 @@ export const normValues = (data: ParseResult): [number, number] => {
     }
 
     switch (data.units[1]) {
-      case "emu":
+      case YUnits.emu:
         return data.normalization[1];
-      case "Am2":
+      case YUnits.Am2:
         return data.normalization[1] * 1_000_000;
     }
   })();

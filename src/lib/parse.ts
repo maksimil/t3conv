@@ -1,8 +1,20 @@
 import { parseLS } from "./parse/LS";
 import { parsePrinceton } from "./parse/Princeton";
 
-export type XUnits = "Oe" | "A/m" | "T";
-export type YUnits = "emu" | "Am2";
+export enum XUnits {
+  Oe = "Oe",
+  Am = "A/m",
+  T = "T",
+}
+
+export const XUNITS = Object.values(XUnits);
+
+export enum YUnits {
+  emu = "emu",
+  Am2 = "Am2",
+}
+
+export const YUNITS = Object.values(YUnits);
 
 export enum PlotColor {
   PRIMARY = 0,

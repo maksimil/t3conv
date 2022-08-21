@@ -33,9 +33,9 @@ const splitData = (data: string): [string[][], number[][][]] => {
 };
 
 const UNITS: { [name: string]: [XUnits, YUnits] } = {
-  "Hybrid SI": ["T", "Am2"],
-  SI: ["A/m", "Am2"],
-  cgs: ["Oe", "emu"],
+  "Hybrid SI": [XUnits.T, YUnits.Am2],
+  SI: [XUnits.Am, YUnits.Am2],
+  cgs: [XUnits.Oe, YUnits.emu],
 };
 
 class PrincetonParseResult implements ParseResult {
