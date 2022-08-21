@@ -1,18 +1,7 @@
 import { Component, createSignal, Switch, Match } from "solid-js";
-import { ParseResult } from "./lib/parse";
+import { INITIAL_ROUTE } from "./routes";
 import Open from "./routes/Open";
 import View from "./routes/View";
-
-export type Route =
-  | {
-      route: "open";
-    }
-  | {
-      route: "view";
-      data: () => Promise<ParseResult>;
-    };
-
-const INITIAL_ROUTE = { route: "open" } as Route;
 
 const App: Component = () => {
   const [route, setRoute] = createSignal(INITIAL_ROUTE);

@@ -1,6 +1,7 @@
 import { Component, batch } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
-import { LineMode } from "../View";
+
+export type LineMode = { lines: boolean; markers: boolean };
 
 const LinemodeOverlay: Component<{
   mode: LineMode;

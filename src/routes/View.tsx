@@ -12,7 +12,7 @@ import {
   batch,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { Route } from "../App";
+import { Route } from "../routes";
 import { ParseResult, PlotColor } from "../lib/parse";
 import { plotLabels } from "../lib/plot";
 import {
@@ -27,7 +27,7 @@ import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
 import SideBar from "./ViewComponents/SideBar";
 import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
-import LinemodeOverlay from "./ViewComponents/LinemodeOverlay";
+import LinemodeOverlay, { LineMode } from "./ViewComponents/LinemodeOverlay";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -61,8 +61,6 @@ const CONFIG = {
 };
 
 const PLOT_COLORS = ["rgb(31, 119, 180)", "rgb(255, 127, 14)"];
-
-export type LineMode = { lines: boolean; markers: boolean };
 
 const View: Component<{
   setRoute: Setter<Route>;

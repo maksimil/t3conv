@@ -11,8 +11,9 @@ import {
   batch,
   onCleanup,
 } from "solid-js";
-import { Route } from "../App";
-import { FileType, parseFile, FILE_TYPES } from "../lib/parse";
+import { Route } from "../routes";
+import { FileType, FILE_TYPES } from "../lib/parse";
+import { parseFile } from "../lib/parseFile";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
