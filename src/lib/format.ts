@@ -8,6 +8,7 @@ const CONVERT_PROPS = {
   [XUnits.Oe]: FPI * 10_000,
   [XUnits.Am]: 10_000_000,
   [XUnits.T]: FPI,
+  [XUnits.mT]: FPI * 1_000,
   [YUnits.emu]: 1_000,
   [YUnits.Am2]: 1,
 };

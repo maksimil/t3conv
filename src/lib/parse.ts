@@ -2,6 +2,7 @@ export enum XUnits {
   Oe = "Oe",
   Am = "A/m",
   T = "T",
+  mT = "mT",
 }
 
 export const XUNITS = Object.values(XUnits);

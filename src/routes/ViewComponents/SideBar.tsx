@@ -2,11 +2,12 @@ import { Component, For, Switch, Match, createMemo } from "solid-js";
 import { ParseResult, XUnits, YUnits } from "../../lib/parse";
 
 const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
-  Oe: (v: number) => v.toFixed(2),
-  "A/m": (v: number) => v.toFixed(0),
-  T: (v: number) => v.toFixed(4),
-  emu: (v: number) => v.toExponential(5),
-  Am2: (v: number) => v.toExponential(5),
+  [XUnits.Oe]: (v: number) => v.toFixed(2),
+  [XUnits.Am]: (v: number) => v.toFixed(0),
+  [XUnits.T]: (v: number) => v.toFixed(4),
+  [XUnits.mT]: (v: number) => v.toFixed(4),
+  [YUnits.emu]: (v: number) => v.toExponential(5),
+  [YUnits.Am2]: (v: number) => v.toExponential(5),
 };
 
 export const convertMask = (data: ParseResult): ((v: number) => string)[] => [
