@@ -1,6 +1,12 @@
 import { FileType, ParseResult, PlotColor, XUnits, YUnits } from "../parse";
 import { normUnits } from "../plot";
 
+export const parsePrinceton = (
+  name: string,
+  source: string,
+  ty: FileType
+): ParseResult => new PrincetonParseResult(name, source, ty);
+
 const splitData = (data: string): [string[][], number[][][]] => {
   const lines = data.split("\n");
   const headings = [
@@ -137,7 +143,3 @@ class PrincetonParseResult implements ParseResult {
       .flat();
   }
 }
-
-export const parsePrinceton = (name: string, source: string, ty: FileType) => {
-  return new PrincetonParseResult(name, source, ty);
-};

@@ -1,6 +1,12 @@
 import { FileType, ParseResult, PlotColor, XUnits, YUnits } from "../parse";
 import { normUnits } from "../plot";
 
+export const parseLS = (
+  name: string,
+  source: string,
+  ty: FileType
+): ParseResult => new LSParseResult(name, source, ty);
+
 const unitregex = new RegExp(
   "^Field\\((.*?)\\)\\s*Moment\\((.*?)\\)\\s*$",
   "gm"
@@ -10,9 +16,6 @@ const dataregex = new RegExp(
   "^\\s*([-\\.0123456789]+)\\s*([-\\.0123456789]+)\\s*$",
   "gm"
 );
-
-export const parseLS = (name: string, source: string, ty: FileType) =>
-  new LSParseResult(name, source, ty);
 
 class LSParseResult implements ParseResult {
   // meta
