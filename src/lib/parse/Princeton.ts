@@ -77,6 +77,7 @@ class PrincetonParseResult implements ParseResult {
     // units
     this.units =
       UNITS[this.meta.match(/Units of measure\s*(Hybrid SI|SI|cgs)/)[1]];
+    this.initUnits = this.units;
 
     this.normalization = [null, null];
   }

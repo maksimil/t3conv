@@ -11,7 +11,12 @@ import {
   Switch,
   batch,
 } from "solid-js";
-import { createStore } from "solid-js/store";
+import {
+  createMutable,
+  createStore,
+  modifyMutable,
+  produce,
+} from "solid-js/store";
 import { Route } from "../routes";
 import { ParseResult, PlotColor } from "../lib/parse";
 import { plotLabels } from "../lib/plot";
@@ -68,7 +73,15 @@ const View: Component<{
 }> = (props) => {
   const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
-  const [fileData, setFileData] = createStore(props.fileData);
+  const fileData = createMutable(props.fileData);
+  const setFileData = (fn: (s: ParseResult) => ParseResult) => {
+    modifyMutable(
+      fileData,
+      produce((s) => {
+        s = fn(s);
+      })
+    );
+  };
   const [lineMode, setLineMode] = createStore({
     lines: true,
     markers: true,
@@ -227,7 +240,7 @@ const View: Component<{
         />
         <TopButton
           label="Reset"
-          onclick={() => resetFormatting(fileData, setFileData)}
+          onclick={() => setFileData((s) => resetFormatting(s))}
         />
       </div>
       {/* over */}
@@ -241,8 +254,8 @@ const View: Component<{
             convert={(units) => {
               console.log(units);
               batch(() => {
-                normalize(fileData, setFileData, null, null);
-                convertUnits(fileData, setFileData, units);
+                setFileData((s) => normalize(s, null, null));
+                setFileData((s) => convertUnits(s, units));
                 setShowOver((_) => "");
               });
             }}
@@ -260,7 +273,7 @@ const View: Component<{
             normalize={(mass, volume) => {
               console.log(mass, volume);
               batch(() => {
-                normalize(fileData, setFileData, mass, volume);
+                setFileData((s) => normalize(s, mass, volume));
                 setShowOver((_) => "");
               });
             }}

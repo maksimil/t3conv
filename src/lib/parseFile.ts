@@ -1,7 +1,7 @@
 import { parseLS } from "./parse/LS";
 import { parsePrinceton } from "./parse/Princeton";
 
-import { FileType, ParseResult, FileType } from "./parse";
+import { FileType, ParseResult } from "./parse";
 
 export const parseFile = (
   name: string,

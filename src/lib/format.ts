@@ -1,6 +1,4 @@
 import { ParseResult, XUnits, YUnits } from "./parse";
-import { SetStoreFunction } from "solid-js/store";
-import { batch } from "solid-js";
 
 const FPI = 4 * Math.PI;
 
@@ -15,32 +13,31 @@ const CONVERT_PROPS = {
 
 export const convertUnits = (
   data: ParseResult,
-  setter: SetStoreFunction<ParseResult>,
   units: [XUnits, YUnits]
-) => {
+): ParseResult => {
   const convertX = CONVERT_PROPS[units[0]] / CONVERT_PROPS[data.units[0]];
   const convertY = CONVERT_PROPS[units[1]] / CONVERT_PROPS[data.units[1]];
   const convertMask = [convertX, convertY, convertY];
 
-  setter("units", units);
+  data.units = units;
 
   for (let k = 0; k < data.data.length; k++) {
     for (let i = 0; i < data.data[k].length; i++) {
       for (let j = 0; j < data.data[k][i].length; j++) {
-        setter("data", k, i, j, (d) =>
-          d !== null ? d * convertMask[j] : null
-        );
+        const d = data.data[k][i][j];
+        data.data[k][i][j] = d !== null ? d * convertMask[j] : null;
       }
     }
   }
+
+  return data;
 };
 
 export const normalize = (
   data: ParseResult,
-  setter: SetStoreFunction<ParseResult>,
   mass: number | null,
   volume: number | null
-) => {
+): ParseResult => {
   const [nmass, imass] = (() => {
     if (mass === null) {
       return [1, false];
@@ -80,12 +77,14 @@ export const normalize = (
   for (let k = 0; k < data.data.length; k++) {
     for (let i = 0; i < data.data[k].length; i++) {
       for (let j = 1; j < data.data[k][i].length; j++) {
-        setter("data", k, i, j, (d) => d * ddiv);
+        data.data[k][i][j] *= ddiv;
       }
     }
   }
 
-  setter("normalization", [imass ? nmass : null, ivolume ? nvolume : null]);
+  data.normalization = [imass ? nmass : null, ivolume ? nvolume : null];
+
+  return data;
 };
 
 export const normValues = (data: ParseResult): [number, number] => {
@@ -118,12 +117,8 @@ export const normValues = (data: ParseResult): [number, number] => {
   return [mass, volume];
 };
 
-export const resetFormatting = (
-  data: ParseResult,
-  setter: SetStoreFunction<ParseResult>
-) => {
-  batch(() => {
-    normalize(data, setter, null, null);
-    convertUnits(data, setter, data.initUnits);
-  });
+export const resetFormatting = (data: ParseResult): ParseResult => {
+  data = normalize(data, null, null);
+  data = convertUnits(data, data.initUnits);
+  return data;
 };
