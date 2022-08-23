@@ -115,8 +115,21 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
   );
 };
 
+const FILE_TYPE_STORE = "previous_fty";
+
+const getPreviousTy = (): FileType | null =>
+  localStorage.getItem(FILE_TYPE_STORE) as FileType | null;
+
+const setPreviousTy = (previous: FileType) => {
+  localStorage.setItem(FILE_TYPE_STORE, previous);
+};
+
 const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
-  const [ty, setTy] = createSignal(null as FileType | null);
+  const [ty, setTy] = createSignal(getPreviousTy());
+
+  createEffect(() => {
+    setPreviousTy(ty());
+  });
 
   const openNewFile = (ty: FileType) => {
     const fileSelector = document.createElement("input");
