@@ -6,7 +6,7 @@ export type Route =
     }
   | {
       route: "view";
-      data: () => Promise<ParseResult>;
+      data: () => Promise<[ParseResult, string]>;
     };
 
 export const INITIAL_ROUTE = { route: "open" } as Route;

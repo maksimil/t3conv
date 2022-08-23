@@ -31,7 +31,7 @@ class LSParseResult implements ParseResult {
 
   constructor(name: string, source: string, ty: FileType) {
     this.name = name;
-    this.meta = source.replaceAll("\r\n", "\n").split("\n\n***DATA***")[0];
+    this.meta = source.split("\n\n***DATA***")[0];
     this.ty = ty;
 
     const datamatch = [...source.matchAll(dataregex)];

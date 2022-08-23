@@ -47,13 +47,20 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
 
 const PreView: Component<{
   setRoute: Setter<Route>;
-  data: () => Promise<ParseResult>;
+  data: () => Promise<[ParseResult, string]>;
 }> = (props) => {
   const [fileData] = createResource(props.data);
 
   return (
     <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
-      <View setRoute={props.setRoute} fileData={fileData()} />
+      <Switch>
+        <Match when={fileData()[1] === null}>
+          <View setRoute={props.setRoute} fileData={fileData()[0]} />
+        </Match>
+        <Match when={fileData()[1] !== null}>
+          <p>Error: {fileData()[1]}</p>
+        </Match>
+      </Switch>
     </Show>
   );
 };

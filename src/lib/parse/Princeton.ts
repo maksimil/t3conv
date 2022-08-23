@@ -5,7 +5,15 @@ export const parsePrinceton = (
   name: string,
   source: string,
   ty: FileType
-): ParseResult => new PrincetonParseResult(name, source, ty);
+): ParseResult => {
+  if (source.split("\n")[1] === "") {
+    // old format
+    throw Error("not implemented");
+  } else {
+    // new format
+    return new PrincetonParseResult(name, source, ty);
+  }
+};
 
 const splitData = (data: string): [string[][], number[][][]] => {
   const lines = data.split("\n");
@@ -61,7 +69,7 @@ class PrincetonParseResult implements ParseResult {
 
   constructor(name: string, source: string, ty: FileType) {
     // meta
-    const split = source.replaceAll("\r\n", "\n").split(/\n\n\s+/);
+    const split = source.split(/\n\n\s+/);
     console.log(split);
     this.name = name;
     this.meta = split[0];
