@@ -109,9 +109,20 @@ class PrincetonParseResult implements ParseResult {
           break;
         // IRM and DCD
         case "4":
-          throw Error(
-            "Princeton not implemented for IRM and DCD in old Princeton files"
-          );
+          switch (metadata.slice(32, 35).join(" ")) {
+            case "1 0 1":
+              this.headings = ["Field", "Remanence"];
+              this.data = [data];
+              break;
+            case "3 0 3":
+              this.headings = ["Field", "Remanence", "TotalM"];
+              this.data = [data.map((v) => [v[0], v[2], v[1]])];
+              break;
+            case "99 3 99":
+              this.headings = ["Field", "Remanence", "TotalM"];
+              this.data = [data.map((v) => [v[0], v[2], v[1]])];
+              break;
+          }
           break;
       }
     } else {
