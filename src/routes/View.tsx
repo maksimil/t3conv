@@ -59,6 +59,16 @@ const PreView: Component<{
         </Match>
         <Match when={fileData()[1] !== null}>
           <p>Error: {fileData()[1]}</p>
+          <button
+            onclick={() =>
+              props.setRoute({
+                route: "open",
+              })
+            }
+            class="p-1 border-1 bg-green-100 hover:bg-green-200 hover:shadow-md"
+          >
+            return home
+          </button>
         </Match>
       </Switch>
     </Show>

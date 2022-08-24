@@ -8,7 +8,6 @@
     "gh-build": "vite build --base \"/t3conv/\"",
     "serve": "vite preview"
   },
-  "license": "MIT",
   "devDependencies": {
     "typescript": "^4.7.4",
     "vite": "^3.0.8",
