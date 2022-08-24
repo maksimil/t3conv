@@ -120,7 +120,21 @@ class PrincetonParseResult implements ParseResult {
               break;
             case "99 3 99":
               this.headings = ["Field", "Remanence", "TotalM"];
-              this.data = [data.map((v) => [v[0], v[2], v[1]])];
+              let datasplit = [[]];
+              const maxfield = data
+                .map((v) => v[0])
+                .reduce((p, c) => Math.max(p, c));
+              for (let i = 0; i < data.length; i++) {
+                datasplit[datasplit.length - 1].push([
+                  data[i][0],
+                  data[i][2],
+                  data[i][1],
+                ]);
+                if (data[i][0] === maxfield) {
+                  datasplit.push([]);
+                }
+              }
+              this.data = datasplit;
               break;
           }
           break;
