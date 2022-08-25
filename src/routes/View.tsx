@@ -1,8 +1,6 @@
 import {
   Component,
   createSignal,
-  createResource,
-  Setter,
   Show,
   onMount,
   createMemo,
@@ -17,8 +15,8 @@ import {
   modifyMutable,
   produce,
 } from "solid-js/store";
-import type { Route } from "../routes";
 import { ParseResult, PlotColor, PlotData } from "../lib/parse";
+import { parseFile } from "../lib/parseFile";
 import { plotLabels } from "../lib/plot";
 import {
   normalize,
@@ -33,6 +31,7 @@ import MetaOverlay from "./ViewComponents/MetaOverlay";
 import SideBar from "./ViewComponents/SideBar";
 import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
 import LinemodeOverlay, { LineMode } from "./ViewComponents/LinemodeOverlay";
+import type { HistoryItem } from "../lib/history";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -45,26 +44,35 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
   </button>
 );
 
-const PreView: Component<{
-  setRoute: Setter<Route>;
-  data: () => Promise<[ParseResult, string]>;
-}> = (props) => {
-  const [fileData] = createResource(props.data);
+const PreView: Component<{}> = () => {
+  const [fileData, setFileData] = createSignal<[ParseResult, string] | null>(
+    null
+  );
+
+  onMount(() => {
+    const cfile = localStorage.getItem("cfile");
+    if (cfile === null) {
+      setFileData([null, "Unable to open the file"]);
+    } else {
+      const hsitem: HistoryItem = JSON.parse(cfile);
+      setFileData(parseFile(hsitem.name, hsitem.rawdata, hsitem.ty));
+    }
+  });
+
+  createEffect(() => {
+    console.log(fileData());
+  });
 
   return (
-    <Show when={!fileData.loading} fallback={<p>Loading...</p>}>
+    <Show when={fileData() !== null} fallback={<p>Loading...</p>}>
       <Switch>
         <Match when={fileData()[1] === null}>
-          <View setRoute={props.setRoute} fileData={fileData()[0]} />
+          <View fileData={fileData()[0]} />
         </Match>
         <Match when={fileData()[1] !== null}>
           <p>Error: {fileData()[1]}</p>
           <button
-            onclick={() =>
-              props.setRoute({
-                route: "open",
-              })
-            }
+            onclick={() => location.assign("/")}
             class="p-1 border-1 bg-green-100 hover:bg-green-200 hover:shadow-md"
           >
             return home
@@ -85,7 +93,6 @@ const CONFIG = {
 const PLOT_COLORS = ["rgb(31, 119, 180)", "rgb(255, 127, 14)"];
 
 const View: Component<{
-  setRoute: Setter<Route>;
   fileData: ParseResult;
 }> = (props) => {
   const [showOver, setShowOver] = createSignal("" as ShowOver);
@@ -108,7 +115,7 @@ const View: Component<{
 
   const lineModeS = () => {
     let mode = Object.keys(lineMode)
-      .filter((v) => lineMode[v])
+      .filter((v) => lineMode[v as keyof LineMode])
       .join("+");
     if (mode === "") {
       mode = "lines";
@@ -221,7 +228,7 @@ const View: Component<{
       <div ref={topBarRef} class="flex flex-row px-1 pb-1 space-x-1">
         <TopButton
           label="Open Another file"
-          onclick={() => props.setRoute({ route: "open" })}
+          onclick={() => location.assign("/")}
         />
         <TopButtonOverlay
           labelHide="Hide metadata"

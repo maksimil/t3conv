@@ -2,18 +2,15 @@ import {
   Component,
   createSignal,
   For,
-  Setter,
   Signal,
   Switch,
   Match,
   onMount,
-  createEffect,
   batch,
+  createEffect,
   onCleanup,
 } from "solid-js";
-import { Route } from "../routes";
 import { FileType, FILE_TYPES } from "../lib/parse";
-import { parseFile } from "../lib/parseFile";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
@@ -127,7 +124,7 @@ const setPreviousTy = (previous: FileType) => {
   localStorage.setItem(FILE_TYPE_STORE, previous);
 };
 
-const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
+const Open: Component<{}> = () => {
   const [ty, setTy] = createSignal<FileType | null>(null);
   const [history, setHistory] = createSignal<HistoryItem[]>([]);
 
@@ -142,34 +139,35 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
     }
   });
 
+  const openFile = (data: () => Promise<HistoryItem>) => {
+    data().then((value) => {
+      localStorage.setItem("cfile", JSON.stringify(value));
+      location.assign("/view");
+    });
+  };
+
   const openNewFile = (ty: FileType) => {
     const fileSelector = document.createElement("input");
     fileSelector.setAttribute("type", "file");
     fileSelector.click();
     fileSelector.onchange = (_) => {
-      props.setRoute({
-        route: "view",
-        data: async () => {
-          const file = fileSelector.files[0];
+      openFile(async () => {
+        const file = fileSelector.files[0];
 
-          const rawdata = await file.text();
-          const name = file.name;
-          const data = parseFile(name, rawdata, ty);
+        const rawdata = await file.text();
+        const name = file.name;
+        const item: HistoryItem = { rawdata, name, ty };
 
-          addHistory({ rawdata, name, ty });
-          return data;
-        },
+        addHistory(item);
+        return item;
       });
     };
   };
 
   const openOldFile = (item: HistoryItem) => {
-    props.setRoute({
-      route: "view",
-      data: async () => {
-        addHistory(item);
-        return parseFile(item.name, item.rawdata, item.ty);
-      },
+    openFile(async () => {
+      addHistory(item);
+      return item;
     });
   };
 

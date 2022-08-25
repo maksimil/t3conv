@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@astrojs/prefetch': ^0.0.7
   '@astrojs/solid-js': ^1.0.0
   '@babel/core': ^7.18.13
   astro: ^1.0.8
@@ -17,6 +18,7 @@ dependencies:
   plotly.js-dist: 2.14.0
 
 devDependencies:
+  '@astrojs/prefetch': 0.0.7
   '@astrojs/solid-js': 1.0.0_5te3c4eqqgwcijl7bu6hevumfu
   '@babel/core': 7.18.13
   astro: 1.0.8
@@ -102,6 +104,12 @@ packages:
       micromark-util-types: 1.0.2
       uvu: 0.5.6
       vfile-message: 3.1.2
+    dev: true
+
+  /@astrojs/prefetch/0.0.7:
+    resolution: {integrity: sha512-cdIIKcppywnnTseiSIk1s3g3VlcHY/qM4WoqMRaveEzOXWr6NzJ1/bKpRXpx9y6S7BDET+ziV2A7d4t+9vny+A==}
+    dependencies:
+      throttles: 1.0.1
     dev: true
 
   /@astrojs/prism/1.0.1:
@@ -2984,6 +2992,11 @@ packages:
   /supports-preserve-symlinks-flag/1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+    dev: true
+
+  /throttles/1.0.1:
+    resolution: {integrity: sha512-fab7Xg+zELr9KOv4fkaBoe/b3L0GMGLd0IBSCn16GoE/Qx6/OfCr1eGNyEcDU2pUA79qQfZ8kPQWlRuok4YwTw==}
+    engines: {node: '>=6'}
     dev: true
 
   /to-fast-properties/2.0.0:

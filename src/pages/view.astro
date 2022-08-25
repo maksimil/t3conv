@@ -1,5 +1,5 @@
 ---
-import Open from "../routes/Open";
+import View from "../routes/View.tsx"
 ---
 
 <html lang="en">
@@ -11,8 +11,7 @@ import Open from "../routes/Open";
   </head>
   <body>
     <div class="w-full h-full absolute">
-      <Open client:load />
+      <View client:only="solid-js" />
     </div>
-    <iframe src="/view" frameborder="0" class="hidden"></iframe>
   </body>
 </html>
