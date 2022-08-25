@@ -17,8 +17,8 @@ import {
   modifyMutable,
   produce,
 } from "solid-js/store";
-import { Route } from "../routes";
-import { ParseResult, PlotColor } from "../lib/parse";
+import type { Route } from "../routes";
+import { ParseResult, PlotColor, PlotData } from "../lib/parse";
 import { plotLabels } from "../lib/plot";
 import {
   normalize,
@@ -116,7 +116,7 @@ const View: Component<{
     return mode;
   };
 
-  const convertPlotly = ({ x, y, name, color }) => ({
+  const convertPlotly = ({ x, y, name, color }: PlotData) => ({
     x,
     y,
     mode: lineModeS(),
