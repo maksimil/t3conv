@@ -2,18 +2,16 @@ import {
   Component,
   createSignal,
   For,
-  Setter,
   Signal,
   Switch,
   Match,
   onMount,
-  createEffect,
   batch,
+  createEffect,
   onCleanup,
+  Setter,
 } from "solid-js";
-import { Route } from "../routes";
 import { FileType, FILE_TYPES } from "../lib/parse";
-import { parseFile } from "../lib/parseFile";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
@@ -26,7 +24,10 @@ const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
         "shadow-md hover:shadow-lg rounded-xl " +
         "flex flex-row bg-green-50 hover:bg-green-100 "
       }
-      onclick={props.onclick}
+      onclick={() => {
+        props.onclick();
+        console.log(props.item);
+      }}
     >
       <div class="flex-1">{props.item.name}</div>
       <div>{props.item.ty}</div>
@@ -43,7 +44,9 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
   let mainRef: HTMLDivElement, openRef: HTMLDivElement;
 
   const onWindowResize = () => {
-    openRef.style.width = `${mainRef.clientWidth}px`;
+    if (openRef !== null) {
+      openRef.style.width = `${mainRef.clientWidth}px`;
+    }
   };
 
   onMount(() => {
@@ -100,14 +103,14 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
               "shadow-md rounded-3xl " +
               "bg-gray-100 hover:bg-gray-200 "
             }
-            onclick={() =>
+            onClick={() => {
               batch(() => {
                 setOpen(true);
                 setTy(null);
-              })
-            }
+              });
+            }}
           >
-            {ty() !== null ? ty() : "Select file type"}
+            {!!ty() ? ty() : "Select file type"}
           </button>
         </Match>
       </Switch>
@@ -124,41 +127,50 @@ const setPreviousTy = (previous: FileType) => {
   localStorage.setItem(FILE_TYPE_STORE, previous);
 };
 
-const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
-  const [ty, setTy] = createSignal(getPreviousTy());
+const Open: Component<{ setRoute: Setter<string> }> = (props) => {
+  const [ty, setTy] = createSignal<FileType | null>(null);
+  const [history, setHistory] = createSignal<HistoryItem[]>([]);
+
+  onMount(() => {
+    setTy(getPreviousTy());
+    setHistory(getHistory());
+  });
 
   createEffect(() => {
-    setPreviousTy(ty());
+    if (ty() !== null) {
+      setPreviousTy(ty());
+    }
   });
+
+  const openFile = (data: () => Promise<HistoryItem>) => {
+    data().then((value) => {
+      localStorage.setItem("cfile", JSON.stringify(value));
+      props.setRoute("view");
+    });
+  };
 
   const openNewFile = (ty: FileType) => {
     const fileSelector = document.createElement("input");
     fileSelector.setAttribute("type", "file");
     fileSelector.click();
     fileSelector.onchange = (_) => {
-      props.setRoute({
-        route: "view",
-        data: async () => {
-          const file = fileSelector.files[0];
+      openFile(async () => {
+        const file = fileSelector.files[0];
 
-          const rawdata = await file.text();
-          const name = file.name;
-          const data = parseFile(name, rawdata, ty);
+        const rawdata = await file.text();
+        const name = file.name;
+        const item: HistoryItem = { rawdata, name, ty };
 
-          addHistory({ rawdata, name, ty });
-          return data;
-        },
+        addHistory(item);
+        return item;
       });
     };
   };
 
   const openOldFile = (item: HistoryItem) => {
-    props.setRoute({
-      route: "view",
-      data: async () => {
-        addHistory(item);
-        return parseFile(item.name, item.rawdata, item.ty);
-      },
+    openFile(async () => {
+      addHistory(item);
+      return item;
     });
   };
 
@@ -189,7 +201,7 @@ const Open: Component<{ setRoute: Setter<Route> }> = (props) => {
           </div>
         </div>
         <div class="flex-1 overflow-x-hidden overflow-y-auto space-y-2">
-          <For each={getHistory().reverse()}>
+          <For each={history().reverse()}>
             {(item) => (
               <OpenFile item={item} onclick={() => openOldFile(item)} />
             )}

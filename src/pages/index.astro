@@ -1,0 +1,17 @@
+---
+import App from "../routes/App";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>t3conv</title>
+  </head>
+  <body>
+    <div slot="open" class="w-full h-full absolute">
+      <App client:only="solid-js" />
+    </div>
+  </body>
+</html>

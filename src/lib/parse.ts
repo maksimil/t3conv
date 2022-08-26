@@ -19,7 +19,7 @@ export enum PlotColor {
   SECONDARY = 1,
 }
 
-type PlotData = {
+export type PlotData = {
   x: number[];
   y: number[];
   name: string;
