@@ -3,11 +3,11 @@ import {
   createSignal,
   Show,
   onMount,
-  createMemo,
   createEffect,
   Match,
   Switch,
   batch,
+  Setter,
 } from "solid-js";
 import {
   createMutable,
@@ -15,16 +15,14 @@ import {
   modifyMutable,
   produce,
 } from "solid-js/store";
-import { ParseResult, PlotColor, PlotData } from "../lib/parse";
+import type { ParseResult } from "../lib/parse";
 import { parseFile } from "../lib/parseFile";
-import { plotLabels } from "../lib/plot";
 import {
   normalize,
   normValues,
   convertUnits,
   resetFormatting,
 } from "../lib/format";
-import Plotly from "plotly.js-dist";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
@@ -32,6 +30,7 @@ import SideBar from "./ViewComponents/SideBar";
 import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
 import LinemodeOverlay, { LineMode } from "./ViewComponents/LinemodeOverlay";
 import type { HistoryItem } from "../lib/history";
+import Plot from "./ViewComponents/Plot";
 
 const TopButton: Component<{ label: string; onclick: () => void }> = (
   props
@@ -44,7 +43,7 @@ const TopButton: Component<{ label: string; onclick: () => void }> = (
   </button>
 );
 
-const PreView: Component<{}> = () => {
+const PreView: Component<{ setRoute: Setter<string> }> = (props) => {
   const [fileData, setFileData] = createSignal<[ParseResult, string] | null>(
     null
   );
@@ -59,20 +58,16 @@ const PreView: Component<{}> = () => {
     }
   });
 
-  createEffect(() => {
-    console.log(fileData());
-  });
-
   return (
     <Show when={fileData() !== null} fallback={<p>Loading...</p>}>
       <Switch>
         <Match when={fileData()[1] === null}>
-          <View fileData={fileData()[0]} />
+          <View fileData={fileData()[0]} setRoute={props.setRoute} />
         </Match>
         <Match when={fileData()[1] !== null}>
           <p>Error: {fileData()[1]}</p>
           <button
-            onclick={() => location.assign("/")}
+            onclick={() => props.setRoute("open")}
             class="p-1 border-1 bg-green-100 hover:bg-green-200 hover:shadow-md"
           >
             return home
@@ -85,22 +80,15 @@ const PreView: Component<{}> = () => {
 
 type ShowOver = "" | "meta" | "convert" | "export" | "normalize" | "linemode";
 
-const CONFIG = {
-  responsive: true,
-  scrollZoom: true,
-};
-
-const PLOT_COLORS = ["rgb(31, 119, 180)", "rgb(255, 127, 14)"];
-
 const View: Component<{
   fileData: ParseResult;
+  setRoute: Setter<string>;
 }> = (props) => {
   const [showOver, setShowOver] = createSignal("" as ShowOver);
   const [showTCurve, setShowTCurve] = createSignal(true);
-  const fileData = createMutable(props.fileData);
+  const [fileData, fileDataSetter] = createStore(props.fileData);
   const setFileData = (fn: (s: ParseResult) => ParseResult) => {
-    modifyMutable(
-      fileData,
+    fileDataSetter(
       produce((s) => {
         s = fn(s);
       })
@@ -110,74 +98,6 @@ const View: Component<{
     lines: true,
     markers: true,
   } as LineMode);
-
-  const plotDataMemo = createMemo(() => fileData.getPlotData());
-
-  const lineModeS = () => {
-    let mode = Object.keys(lineMode)
-      .filter((v) => lineMode[v as keyof LineMode])
-      .join("+");
-    if (mode === "") {
-      mode = "lines";
-    }
-    return mode;
-  };
-
-  const convertPlotly = ({ x, y, name, color }: PlotData) => ({
-    x,
-    y,
-    mode: lineModeS(),
-    name,
-    line: { width: 1, color: PLOT_COLORS[color] },
-    hovertemplate: "%{x:.2f}; %{y:.2f}<extra></extra>",
-    showlegend: name !== "",
-  });
-
-  const getPlotData = () => {
-    if (showTCurve()) {
-      return plotDataMemo().map(convertPlotly);
-    } else {
-      return plotDataMemo()
-        .filter(({ color }) => color !== 1)
-        .map(convertPlotly);
-    }
-  };
-
-  const plotLayout = () => {
-    const [xtitle, ytitle] = plotLabels(fileData);
-
-    return {
-      title: { text: fileData.name, font: { color: "#000" } },
-      margin: {
-        l: 100,
-        r: 80,
-        b: 100,
-        t: 40,
-      },
-      showlegend: true,
-      legend: {
-        x: 0,
-        y: 1,
-        font: {
-          color: "#000",
-        },
-      },
-      xaxis: {
-        title: xtitle,
-        exponentformat: "e",
-        linecolor: "black",
-        mirror: true,
-        linewidth: 1,
-      },
-      yaxis: {
-        title: ytitle,
-        exponentformat: "e",
-        linecolor: "black",
-        mirror: true,
-        linewidth: 1,
-      },
-    };
-  };
 
   let screenRef: HTMLDivElement,
     topBarRef: HTMLDivElement,
@@ -191,22 +111,14 @@ const View: Component<{
 
   onMount(() => {
     resize();
-
-    Plotly.newPlot("plot", getPlotData(), plotLayout(), CONFIG);
   });
 
-  createEffect(() => {
-    Plotly.react("plot", getPlotData(), plotLayout(), CONFIG);
-    Plotly.Plots.resize("plot");
-  });
-
-  createEffect(() => {
-    console.log(JSON.parse(JSON.stringify(fileData)));
-  });
+  // createEffect(() => {
+  //   console.log(JSON.parse(JSON.stringify(fileData)));
+  // });
 
   window.addEventListener("resize", () => {
     resize();
-    Plotly.Plots.resize("plot");
   });
 
   const TopButtonOverlay: Component<{
@@ -228,7 +140,7 @@ const View: Component<{
       <div ref={topBarRef} class="flex flex-row px-1 pb-1 space-x-1">
         <TopButton
           label="Open Another file"
-          onclick={() => location.assign("/")}
+          onclick={() => props.setRoute("open")}
         />
         <TopButtonOverlay
           labelHide="Hide metadata"
@@ -240,9 +152,7 @@ const View: Component<{
           labelShow="Convert"
           option="convert"
         />
-        <Show
-          when={plotDataMemo().some((v) => v.color === PlotColor.SECONDARY)}
-        >
+        <Show when={fileData.data[0][0].length > 2}>
           <TopButton
             label={showTCurve() ? "Hide totalM" : "Show totalM"}
             onclick={() => setShowTCurve((v) => !v)}
@@ -277,7 +187,6 @@ const View: Component<{
           <ConvertOverlay
             units={fileData.units}
             convert={(units) => {
-              console.log(units);
               batch(() => {
                 setFileData((s) => normalize(s, null, null));
                 setFileData((s) => convertUnits(s, units));
@@ -311,7 +220,11 @@ const View: Component<{
       {/* otherdata */}
       <div ref={mainBoxRef} class="px-1 pb-1 w-full flex flex-row">
         <SideBar fileData={fileData} />
-        <div id="plot" class="flex-1 h-full" />
+        <Plot
+          fileData={fileData}
+          lineMode={lineMode}
+          showTCurve={showTCurve()}
+        />
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ specifiers:
   '@astrojs/prefetch': ^0.0.7
   '@astrojs/solid-js': ^1.0.0
   '@babel/core': ^7.18.13
-  astro: ^1.0.8
+  astro: ^1.0.9
   astro-windicss: ^0.1.0
   plotly.js-dist: ^2.14.0
   solid-js: ^1.4.8
@@ -21,8 +21,8 @@ devDependencies:
   '@astrojs/prefetch': 0.0.7
   '@astrojs/solid-js': 1.0.0_5te3c4eqqgwcijl7bu6hevumfu
   '@babel/core': 7.18.13
-  astro: 1.0.8
-  astro-windicss: 0.1.0_wsoqkkvykpzb2nqdhobvuwhe24
+  astro: 1.0.9
+  astro-windicss: 0.1.0_rmvzmspfijykwsaxktgtqkvkti
   solid-js: 1.4.8
   typescript: 4.7.4
   vite: 3.0.9
@@ -751,13 +751,13 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /astro-windicss/0.1.0_wsoqkkvykpzb2nqdhobvuwhe24:
+  /astro-windicss/0.1.0_rmvzmspfijykwsaxktgtqkvkti:
     resolution: {integrity: sha512-Is/WVuonX+aazFw81ET2x3rGbSqFhrnuNIQeCyh52vCwDUClJoHtP+/vkRGy5HNqmHejuytCRtCOkShxYpI0NA==}
     peerDependencies:
       astro: ^1.0.6
       windicss: '*'
     dependencies:
-      astro: 1.0.8
+      astro: 1.0.9
       vite-plugin-windicss: 1.8.7_vite@3.0.9
       windicss: 3.5.6
     transitivePeerDependencies:
@@ -765,8 +765,8 @@ packages:
       - vite
     dev: true
 
-  /astro/1.0.8:
-    resolution: {integrity: sha512-cWey5M/EjdgeZCRlOAB6YP05ui3U9ZfHPdb4r5HmumOE/1w8auDqRiHPpb2RCGYD7RpxOXcJu5XfJL4V2F1UpQ==}
+  /astro/1.0.9:
+    resolution: {integrity: sha512-Pa/7wLIuXFs+sgdVxUTT0QHe+9yKQVE21jxZU/p2ZzcUrAB+8JN32fHEG28QTwEx+NuwTqvC5xTvDBXLZJGtqw==}
     engines: {node: ^14.18.0 || >=16.12.0, npm: '>=6.14.0'}
     hasBin: true
     dependencies:
@@ -811,7 +811,7 @@ packages:
       recast: 0.20.5
       rehype: 12.0.1
       resolve: 1.22.1
-      rollup: 2.78.1
+      rollup: 2.77.3
       semver: 7.3.7
       shiki: 0.10.1
       sirv: 2.0.2
@@ -1987,8 +1987,8 @@ packages:
       vfile-message: 3.1.2
     dev: true
 
-  /mdast-util-to-hast/12.2.0:
-    resolution: {integrity: sha512-YDwT5KhGzLgPpSnQhAlK1+WpCW4gsPmNNAxUNMkMTDhxQyPp2eX86WOelnKnLKEvSpfxqJbPbInHFkefXZBhEA==}
+  /mdast-util-to-hast/12.2.1:
+    resolution: {integrity: sha512-dyindR2P7qOqXO1hQirZeGtVbiX7xlNQbw7gGaAwN4A1dh4+X8xU/JyYmRoyB8Fu1uPXzp7mlL5QwW7k+knvgA==}
     dependencies:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
@@ -2686,7 +2686,7 @@ packages:
     dependencies:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
-      mdast-util-to-hast: 12.2.0
+      mdast-util-to-hast: 12.2.1
       unified: 10.1.2
     dev: true
 
@@ -2758,14 +2758,6 @@ packages:
 
   /rollup/2.77.3:
     resolution: {integrity: sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /rollup/2.78.1:
-    resolution: {integrity: sha512-VeeCgtGi4P+o9hIg+xz4qQpRl6R401LWEXBmxYKOV4zlF82lyhgh2hTZnheFUbANE8l2A41F458iwj2vEYaXJg==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:

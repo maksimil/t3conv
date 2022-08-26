@@ -9,9 +9,11 @@ import {
   batch,
   createEffect,
   onCleanup,
+  Setter,
 } from "solid-js";
 import { FileType, FILE_TYPES } from "../lib/parse";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
+import { loadPlotlyLib } from "./ViewComponents/Plot";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
   props
@@ -124,13 +126,18 @@ const setPreviousTy = (previous: FileType) => {
   localStorage.setItem(FILE_TYPE_STORE, previous);
 };
 
-const Open: Component<{}> = () => {
+const Open: Component<{ setRoute: Setter<string> }> = (props) => {
   const [ty, setTy] = createSignal<FileType | null>(null);
   const [history, setHistory] = createSignal<HistoryItem[]>([]);
 
   onMount(() => {
     setTy(getPreviousTy());
     setHistory(getHistory());
+
+    import("plotly.js-dist").then((value) => {
+      console.log("Loaded");
+      loadPlotlyLib(value);
+    });
   });
 
   createEffect(() => {
@@ -142,7 +149,7 @@ const Open: Component<{}> = () => {
   const openFile = (data: () => Promise<HistoryItem>) => {
     data().then((value) => {
       localStorage.setItem("cfile", JSON.stringify(value));
-      location.assign("/view");
+      props.setRoute("view");
     });
   };
 

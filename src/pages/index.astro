@@ -1,5 +1,5 @@
 ---
-import Open from "../routes/Open";
+import App from "../routes/App";
 ---
 
 <html lang="en">
@@ -10,9 +10,8 @@ import Open from "../routes/Open";
     <title>t3conv</title>
   </head>
   <body>
-    <div class="w-full h-full absolute">
-      <Open client:load />
+    <div slot="open" class="w-full h-full absolute">
+      <App client:load />
     </div>
-    <iframe src="/view" frameborder="0" class="hidden"></iframe>
   </body>
 </html>

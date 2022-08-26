@@ -24,6 +24,7 @@ export const parseFile = (
     // post-processing
     if (res.units[0] == XUnits.T) {
       res = convertUnits(res, [XUnits.mT, res.initUnits[1]]);
+      res.initUnits[0] = XUnits.mT;
     }
 
     return [res, null];
