@@ -13,7 +13,6 @@ import {
 } from "solid-js";
 import { FileType, FILE_TYPES } from "../lib/parse";
 import { addHistory, getHistory, HistoryItem } from "../lib/history";
-import { loadPlotlyLib } from "./ViewComponents/Plot";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
   props
@@ -45,7 +44,9 @@ const TypeSetter: Component<{ tySignal: Signal<FileType | null> }> = (
   let mainRef: HTMLDivElement, openRef: HTMLDivElement;
 
   const onWindowResize = () => {
-    openRef.style.width = `${mainRef.clientWidth}px`;
+    if (openRef !== null) {
+      openRef.style.width = `${mainRef.clientWidth}px`;
+    }
   };
 
   onMount(() => {
@@ -133,11 +134,6 @@ const Open: Component<{ setRoute: Setter<string> }> = (props) => {
   onMount(() => {
     setTy(getPreviousTy());
     setHistory(getHistory());
-
-    import("plotly.js-dist").then((value) => {
-      console.log("Loaded");
-      loadPlotlyLib(value);
-    });
   });
 
   createEffect(() => {

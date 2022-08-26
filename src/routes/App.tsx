@@ -1,9 +1,14 @@
-import { Component, createSignal, Switch, Match, createEffect } from "solid-js";
+import { Component, createSignal, Switch, Match, onMount } from "solid-js";
 import Open from "./Open";
 import View from "./View";
+import { loadPlotly } from "./ViewComponents/Plot";
 
 const App: Component<{}> = () => {
   const [route, setRoute] = createSignal("open");
+
+  onMount(() => {
+    loadPlotly();
+  });
 
   return (
     <Switch>

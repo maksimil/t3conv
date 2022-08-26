@@ -3,18 +3,13 @@ import {
   createSignal,
   Show,
   onMount,
-  createEffect,
   Match,
   Switch,
   batch,
   Setter,
+  onCleanup,
 } from "solid-js";
-import {
-  createMutable,
-  createStore,
-  modifyMutable,
-  produce,
-} from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import type { ParseResult } from "../lib/parse";
 import { parseFile } from "../lib/parseFile";
 import {
@@ -111,15 +106,17 @@ const View: Component<{
 
   onMount(() => {
     resize();
+
+    window.addEventListener("resize", resize);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("resize", resize);
   });
 
   // createEffect(() => {
   //   console.log(JSON.parse(JSON.stringify(fileData)));
   // });
-
-  window.addEventListener("resize", () => {
-    resize();
-  });
 
   const TopButtonOverlay: Component<{
     labelHide: string;

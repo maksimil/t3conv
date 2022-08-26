@@ -6,6 +6,7 @@ import {
   createResource,
   Show,
   createSignal,
+  onCleanup,
 } from "solid-js";
 import type { ParseResult, PlotData } from "../../lib/parse";
 import { plotLabels } from "../../lib/plot";
@@ -18,14 +19,20 @@ const CONFIG = {
 
 const PLOT_COLORS = ["rgb(31, 119, 180)", "rgb(255, 127, 14)"];
 
-export const [plotlyLib, loadPlotlyLib] = createSignal<any>(null);
+const [plotlyLib, setPlotlyLib] = createSignal<any>(null);
+export const loadPlotly = () => {
+  if (plotlyLib() === null) {
+    import("plotly.js-dist-min").then((value) => {
+      setPlotlyLib(value);
+    });
+  }
+};
 
 const PlotWrapper: Component<{
   fileData: ParseResult;
   lineMode: LineMode;
   showTCurve: boolean;
 }> = (props) => {
-  // const [Plotly] = createResource(() => import("plotly.js-dist"));
   return (
     <Show
       when={plotlyLib() !== null}
@@ -120,16 +127,23 @@ const Plot: Component<{
     };
   };
 
+  const resize = () => {
+    Plotly.Plots.resize("plot");
+  };
+
   onMount(() => {
     Plotly.newPlot("plot", getPlotData(), plotLayout(), CONFIG);
+
+    window.addEventListener("resize", resize);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("resize", resize);
+    Plotly.purge("plot");
   });
 
   createEffect(() => {
     Plotly.react("plot", getPlotData(), plotLayout(), CONFIG);
-    Plotly.Plots.resize("plot");
-  });
-
-  window.addEventListener("resize", () => {
     Plotly.Plots.resize("plot");
   });
 

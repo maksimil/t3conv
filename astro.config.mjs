@@ -10,7 +10,7 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks: {
-            plotly: ["plotly.js-dist"],
+            plotly: ["plotly.js-dist-min"],
           },
         },
       },
