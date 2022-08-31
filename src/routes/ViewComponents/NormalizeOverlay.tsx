@@ -6,7 +6,6 @@ import {
   Switch,
   Match,
 } from "solid-js";
-import Overlay from "./Overlay";
 
 const RowElement: Component<{
   accessor: Accessor<number | null>;
@@ -75,38 +74,31 @@ const NormalizeOverlay: Component<{
   const [volume, setVolume] = createSignal(props.initial[1]);
 
   return (
-    <Overlay>
-      <table class="m-2 bg-white shadow-md">
-        <tbody>
-          <RowElement
-            accessor={mass}
-            setter={setMass}
-            label="Mass"
-            units="mg"
-          />
-          <RowElement
-            accessor={volume}
-            setter={setVolume}
-            label="Volume"
-            units="cm3"
-          />
-          <tr>
-            <td
-              class={
-                "border-solid border-1 border-gray-500 px-1 pt-1 " +
-                "bg-green-100 hover:bg-green-200 cursor-pointer"
-              }
-              colspan="2"
-              onclick={() => {
-                props.normalize(mass(), volume());
-              }}
-            >
-              Normalize
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </Overlay>
+    <table class="mx-2 bg-white shadow-md">
+      <tbody>
+        <RowElement accessor={mass} setter={setMass} label="Mass" units="mg" />
+        <RowElement
+          accessor={volume}
+          setter={setVolume}
+          label="Volume"
+          units="cm3"
+        />
+        <tr>
+          <td
+            class={
+              "border-solid border-1 border-gray-500 px-1 pt-1 " +
+              "bg-green-100 hover:bg-green-200 cursor-pointer"
+            }
+            colspan="2"
+            onclick={() => {
+              props.normalize(mass(), volume());
+            }}
+          >
+            Normalize
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 };
 

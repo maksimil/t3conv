@@ -1,6 +1,5 @@
 import { Component, batch } from "solid-js";
 import type { SetStoreFunction } from "solid-js/store";
-import Overlay from "./Overlay";
 
 export type LineMode = { lines: boolean; markers: boolean };
 
@@ -28,16 +27,14 @@ const LinemodeOverlay: Component<{
     );
   };
   return (
-    <Overlay>
-      <table class="m-2 bg-white shadow-md">
-        <tbody>
-          <tr>
-            <ModeBtn label="lines" />
-            <ModeBtn label="markers" />
-          </tr>
-        </tbody>
-      </table>
-    </Overlay>
+    <table class="mx-2 bg-white shadow-md">
+      <tbody>
+        <tr>
+          <ModeBtn label="lines" />
+          <ModeBtn label="markers" />
+        </tr>
+      </tbody>
+    </table>
   );
 };
 
