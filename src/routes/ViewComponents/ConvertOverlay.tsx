@@ -1,5 +1,6 @@
 import { Component, createSignal, For } from "solid-js";
 import { XUNITS, YUNITS, XUnits, YUnits } from "../../lib/parse";
+import Overlay from "./Overlay";
 
 const ConvertOverlay: Component<{
   units: [XUnits, YUnits];
@@ -9,7 +10,7 @@ const ConvertOverlay: Component<{
   const [yUnit, setYUnit] = createSignal(props.units[1] as YUnits);
 
   return (
-    <div class="w-full flex flex-row z-5 absolute">
+    <Overlay>
       <table class="m-2 bg-white shadow-md">
         <tbody>
           <tr>
@@ -68,7 +69,7 @@ const ConvertOverlay: Component<{
           </tr>
         </tbody>
       </table>
-    </div>
+    </Overlay>
   );
 };
 

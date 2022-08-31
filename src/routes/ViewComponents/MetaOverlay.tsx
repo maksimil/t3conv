@@ -1,9 +1,10 @@
-import { Component } from "solid-js";
-import { ParseResult } from "../../lib/parse";
+import type { Component } from "solid-js";
+import type { ParseResult } from "../../lib/parse";
+import Overlay from "./Overlay";
 
 const MetaOverlay: Component<{ fileData: ParseResult }> = (props) => {
   return (
-    <div class="w-full flex flex-row z-5 absolute">
+    <Overlay>
       <div
         class={
           "max-h-[80vh] overflow-y-scroll m-2 p-2 bg-white " +
@@ -12,7 +13,7 @@ const MetaOverlay: Component<{ fileData: ParseResult }> = (props) => {
       >
         <pre>{props.fileData.meta}</pre>
       </div>
-    </div>
+    </Overlay>
   );
 };
 

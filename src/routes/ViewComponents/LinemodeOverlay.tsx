@@ -1,5 +1,6 @@
 import { Component, batch } from "solid-js";
-import { SetStoreFunction } from "solid-js/store";
+import type { SetStoreFunction } from "solid-js/store";
+import Overlay from "./Overlay";
 
 export type LineMode = { lines: boolean; markers: boolean };
 
@@ -27,7 +28,7 @@ const LinemodeOverlay: Component<{
     );
   };
   return (
-    <div class="w-full flex flex-row z-5 absolute">
+    <Overlay>
       <table class="m-2 bg-white shadow-md">
         <tbody>
           <tr>
@@ -36,7 +37,7 @@ const LinemodeOverlay: Component<{
           </tr>
         </tbody>
       </table>
-    </div>
+    </Overlay>
   );
 };
 

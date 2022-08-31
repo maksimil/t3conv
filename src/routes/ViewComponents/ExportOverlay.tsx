@@ -1,5 +1,6 @@
 import { Component, createSignal } from "solid-js";
-import { ParseResult } from "../../lib/parse";
+import type { ParseResult } from "../../lib/parse";
+import Overlay from "./Overlay";
 
 const defaultFileName = (fileData: ParseResult) => fileData.name + ".csv";
 
@@ -7,10 +8,12 @@ const ExportOverlay: Component<{
   fileData: ParseResult;
   onexport: () => void;
 }> = (props) => {
-  const [rawFileName, setRawFileName] = createSignal(null);
+  const [rawFileName, setRawFileName] = createSignal<null | string>(null);
 
   const fileName = () =>
-    rawFileName() !== null ? rawFileName() : defaultFileName(props.fileData);
+    rawFileName() !== null
+      ? (rawFileName() as string)
+      : defaultFileName(props.fileData);
 
   const exportFn = () => {
     let text = props.fileData.getDataLabels().join(";");
@@ -34,7 +37,7 @@ const ExportOverlay: Component<{
   };
 
   return (
-    <div class="w-full flex flex-row z-5 absolute">
+    <Overlay>
       <table class="m-2 bg-white shadow-md">
         <tbody>
           <tr>
@@ -77,7 +80,7 @@ const ExportOverlay: Component<{
           </tr>
         </tbody>
       </table>
-    </div>
+    </Overlay>
   );
 };
 

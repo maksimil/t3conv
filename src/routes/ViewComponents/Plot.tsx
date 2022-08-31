@@ -3,7 +3,6 @@ import {
   onMount,
   createMemo,
   createEffect,
-  createResource,
   Show,
   createSignal,
   onCleanup,

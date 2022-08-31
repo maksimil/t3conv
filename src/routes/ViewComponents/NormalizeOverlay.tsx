@@ -6,6 +6,7 @@ import {
   Switch,
   Match,
 } from "solid-js";
+import Overlay from "./Overlay";
 
 const RowElement: Component<{
   accessor: Accessor<number | null>;
@@ -31,7 +32,7 @@ const RowElement: Component<{
           <td class="border-solid border-1 border-gray-500 pl-1">
             <input
               type="text"
-              value={props.accessor()}
+              value={props.accessor() as number}
               class="w-15 focus:outline-none inline-block text-right"
               onchange={(e) => {
                 const parsed = parseFloat(e.currentTarget.value);
@@ -74,7 +75,7 @@ const NormalizeOverlay: Component<{
   const [volume, setVolume] = createSignal(props.initial[1]);
 
   return (
-    <div class="w-full flex flex-row z-5 absolute">
+    <Overlay>
       <table class="m-2 bg-white shadow-md">
         <tbody>
           <RowElement
@@ -105,7 +106,7 @@ const NormalizeOverlay: Component<{
           </tr>
         </tbody>
       </table>
-    </div>
+    </Overlay>
   );
 };
 
