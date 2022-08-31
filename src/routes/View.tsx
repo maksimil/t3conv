@@ -139,7 +139,7 @@ const View: Component<{
           label="Open Another file"
           onclick={() => props.setRoute("open")}
         />
-        <TopButtonOverlay label="Show metad" option="meta" />
+        <TopButtonOverlay label="Show meta" option="meta" />
         <TopButtonOverlay label="Convert" option="convert" />
         <Show when={fileData.data[0][0].length > 2}>
           <TopButton
