@@ -1,77 +1,69 @@
-import {
-  Accessor,
-  Setter,
-  Component,
-  createSignal,
-  Switch,
-  Match,
-} from "solid-js";
+import { Component, createEffect } from "solid-js";
+import { createStore, SetStoreFunction } from "solid-js/store";
+import type { Normalization } from "../../lib/parse";
+
+type NormalizationRow = { value: number; enabled: boolean };
 
 const RowElement: Component<{
-  accessor: Accessor<number | null>;
-  setter: Setter<number | null>;
+  accessor: NormalizationRow;
+  setter: SetStoreFunction<NormalizationRow>;
   label: string;
   units: string;
 }> = (props) => {
   return (
-    <Switch>
-      <Match when={props.accessor() !== null}>
-        <tr>
-          <td
-            class={
-              "border-solid border-1 border-gray-500 px-1 pt-1 w-25 " +
-              "bg-green-100 hover:bg-green-200 cursor-pointer "
+    <tr>
+      <td
+        class={
+          "border-solid border-1 border-gray-500 px-1 pt-1 w-25 " +
+          "cursor-pointer " +
+          (props.accessor.enabled
+            ? "bg-green-100 hover:bg-green-200 "
+            : "bg-gray-100 hover:bg-gray-200 ")
+        }
+        onclick={() => {
+          props.setter("enabled", (v) => !v);
+        }}
+      >
+        {props.label}
+      </td>
+      <td class="border-solid border-1 border-gray-500 pl-1">
+        <input
+          type="text"
+          value={props.accessor.value}
+          class="w-15 focus:outline-none inline-block text-right"
+          onchange={(e) => {
+            const parsed = parseFloat(e.currentTarget.value);
+            if (!isNaN(parsed) && parsed !== 0) {
+              props.setter("value", parsed);
+            } else {
+              props.setter("value", 1);
             }
-            onclick={() => {
-              props.setter(null);
-            }}
-          >
-            {props.label}
-          </td>
-          <td class="border-solid border-1 border-gray-500 pl-1">
-            <input
-              type="text"
-              value={props.accessor() as number}
-              class="w-15 focus:outline-none inline-block text-right"
-              onchange={(e) => {
-                const parsed = parseFloat(e.currentTarget.value);
-                if (!isNaN(parsed)) {
-                  props.setter(parsed);
-                } else {
-                  props.setter(null);
-                }
-              }}
-            />
-            <div class="inline ml-1">{props.units}</div>
-          </td>
-        </tr>
-      </Match>
-      <Match when={props.accessor() === null}>
-        <tr
-          class="bg-gray-100 hover:bg-gray-200 cursor-pointer"
-          onclick={() => {
-            props.setter(1);
           }}
-        >
-          <td class="border-solid border-1 border-gray-500 px-1 pt-1 w-25">
-            {props.label}
-          </td>
-          <td class="border-solid border-1 border-gray-500 pl-1">
-            <div class="w-15 inline-block text-right">-</div>
-            <div class="inline ml-1">{props.units}</div>
-          </td>
-        </tr>
-      </Match>
-    </Switch>
+        />
+        <div class="inline ml-1">{props.units}</div>
+      </td>
+    </tr>
   );
 };
 
 const NormalizeOverlay: Component<{
-  initial: [number | null, number | null];
-  normalize: (mass: number | null, volume: number | null) => void;
+  initial: Normalization;
+  normalize: (norm: Normalization) => void;
 }> = (props) => {
-  const [mass, setMass] = createSignal(props.initial[0]);
-  const [volume, setVolume] = createSignal(props.initial[1]);
+  const [mass, setMass] = createStore(props.initial.mass);
+  const [volume, setVolume] = createStore(props.initial.volume);
+
+  createEffect(() => {
+    if (mass.enabled) {
+      setVolume("enabled", false);
+    }
+  });
+
+  createEffect(() => {
+    if (volume.enabled) {
+      setMass("enabled", false);
+    }
+  });
 
   return (
     <table class="mx-2 bg-white shadow-md">
@@ -91,7 +83,7 @@ const NormalizeOverlay: Component<{
             }
             colspan="2"
             onclick={() => {
-              props.normalize(mass(), volume());
+              props.normalize({ mass, volume });
             }}
           >
             Normalize

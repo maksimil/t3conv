@@ -1,4 +1,12 @@
-import { FileType, ParseResult, PlotColor, XUnits, YUnits } from "../parse";
+import {
+  FileType,
+  NORMALIZATION,
+  Normalization,
+  ParseResult,
+  PlotColor,
+  XUnits,
+  YUnits,
+} from "../parse";
 import { normUnits } from "../plot";
 
 export const parsePrinceton = (
@@ -11,18 +19,11 @@ export const parsePrinceton = (
 
 const splitData = (data: string): [string[][], number[][][]] => {
   const lines = data.split("\n");
-  const headings = [
-    lines
-      .shift()
-      .split(/\s{2,}/)
-      .filter((e) => e != ""),
-    lines
-      .shift()
-      .split(/\s{2,}/)
-      .filter((e) => e != ""),
-  ];
+  const headings = [0, 0].map((_) =>
+    (lines.shift() as string).split(/\s{2,}/).filter((e) => e != "")
+  );
 
-  let segments = [[]];
+  let segments: number[][][] = [[]];
   let i = 0;
 
   while (lines[i][0] !== "M") {
@@ -74,8 +75,9 @@ class PrincetonParseResult implements ParseResult {
   // data for conversion
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
-  normalization: [number | null, number | null];
-  data: number[][][];
+  normalization: Normalization = NORMALIZATION;
+
+  data: (number | null)[][][];
 
   // additional
   headings: string[];
@@ -99,7 +101,6 @@ class PrincetonParseResult implements ParseResult {
         parseInt(metadata[29])
       ];
       this.initUnits = this.units;
-      this.normalization = [null, null];
 
       switch (metadata[31]) {
         // Hyst
@@ -120,7 +121,7 @@ class PrincetonParseResult implements ParseResult {
               break;
             case "99 3 99":
               this.headings = ["Field", "Remanence", "TotalM"];
-              let datasplit = [[]];
+              let datasplit: number[][][] = [[]];
               const maxfield = data
                 .map((v) => v[0])
                 .reduce((p, c) => Math.max(p, c));
@@ -136,8 +137,12 @@ class PrincetonParseResult implements ParseResult {
               }
               this.data = datasplit;
               break;
+            default:
+              throw "Unknown metadata[32-34]";
           }
           break;
+        default:
+          throw "Unknown metadata[31]";
       }
     } else {
       // modern format
@@ -162,23 +167,26 @@ class PrincetonParseResult implements ParseResult {
         .map((v) => (v === "Direct Moment" ? "TotalM" : v));
 
       // units
-      this.units =
-        UNITS[this.meta.match(/Units of measure\s*(Hybrid SI|SI|cgs)/)[1]];
+      const unitsmatch = this.meta.match(
+        /Units of measure\s*(Hybrid SI|SI|cgs)/
+      );
+      if (unitsmatch === null) {
+        throw "Units of measure not found in file metadata";
+      }
+      this.units = UNITS[unitsmatch[1]];
       this.initUnits = this.units;
-
-      this.normalization = [null, null];
     }
   }
 
   getDataLabels() {
     const yunits = normUnits(
       this.units[1],
-      this.normalization[0] !== null,
-      this.normalization[1] !== null
+      this.normalization.mass.enabled,
+      this.normalization.volume.enabled
     );
 
     const isNormalized =
-      this.normalization[0] !== null || this.normalization[1] !== null;
+      this.normalization.mass.enabled || this.normalization.volume.enabled;
 
     if (!isNormalized) {
       return this.headings.map(
@@ -199,11 +207,11 @@ class PrincetonParseResult implements ParseResult {
 
     return this.data
       .map((segment, i) => {
-        const x = segment.map((v) => v[0]);
+        const x = segment.map((v) => v[0]) as number[];
 
         const primaryLine = {
           x,
-          y: segment.map((v) => v[1]),
+          y: segment.map((v) => v[1]) as number[],
           name: i === 0 ? labels[1] : "",
           color: PlotColor.PRIMARY,
         };
@@ -215,7 +223,7 @@ class PrincetonParseResult implements ParseResult {
             primaryLine,
             {
               x,
-              y: segment.map((v) => v[2]),
+              y: segment.map((v) => v[2]) as number[],
               name: i === 0 ? labels[2] : "",
               color: PlotColor.SECONDARY,
             },

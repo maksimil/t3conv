@@ -26,6 +26,16 @@ export type PlotData = {
   color: PlotColor;
 };
 
+export type Normalization = {
+  mass: { value: number; enabled: boolean };
+  volume: { value: number; enabled: boolean };
+};
+
+export const NORMALIZATION: Normalization = {
+  mass: { value: 1, enabled: false },
+  volume: { value: 1, enabled: false },
+};
+
 export interface ParseResult {
   // meta
   name: string;
@@ -35,8 +45,8 @@ export interface ParseResult {
   // data for conversion
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
-  normalization: [number | null, number | null];
-  data: number[][][];
+  normalization: Normalization;
+  data: (number | null)[][][];
 
   // interfaces for plotting
   getDataLabels(): string[];

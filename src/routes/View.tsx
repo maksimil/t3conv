@@ -10,14 +10,9 @@ import {
   onCleanup,
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import type { ParseResult } from "../lib/parse";
+import { NORMALIZATION, ParseResult } from "../lib/parse";
 import { parseFile } from "../lib/parseFile";
-import {
-  normalize,
-  normValues,
-  convertUnits,
-  resetFormatting,
-} from "../lib/format";
+import { normalize, convertUnits, resetFormatting } from "../lib/format";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
@@ -115,10 +110,6 @@ const View: Component<{
     window.removeEventListener("resize", resize);
   });
 
-  // createEffect(() => {
-  //   console.log(JSON.parse(JSON.stringify(fileData)));
-  // });
-
   const TopButtonOverlay: Component<{
     label: string;
     option: ShowOver;
@@ -170,7 +161,7 @@ const View: Component<{
               units={fileData.units}
               convert={(units) => {
                 batch(() => {
-                  setFileData((s) => normalize(s, null, null));
+                  setFileData((s) => normalize(s, NORMALIZATION));
                   setFileData((s) => convertUnits(s, units));
                   setShowOver((_) => "");
                 });
@@ -185,11 +176,10 @@ const View: Component<{
           </Match>
           <Match when={showOver() == "normalize"}>
             <NormalizeOverlay
-              initial={normValues(fileData)}
-              normalize={(mass, volume) => {
-                console.log(mass, volume);
+              initial={JSON.parse(JSON.stringify(fileData.normalization))}
+              normalize={(norm) => {
                 batch(() => {
-                  setFileData((s) => normalize(s, mass, volume));
+                  setFileData((s) => normalize(s, norm));
                   setShowOver((_) => "");
                 });
               }}

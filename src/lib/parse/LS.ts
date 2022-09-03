@@ -1,4 +1,12 @@
-import { FileType, ParseResult, PlotColor, XUnits, YUnits } from "../parse";
+import {
+  FileType,
+  NORMALIZATION,
+  Normalization,
+  ParseResult,
+  PlotColor,
+  XUnits,
+  YUnits,
+} from "../parse";
 import { normUnits } from "../plot";
 
 export const parseLS = (
@@ -26,8 +34,8 @@ class LSParseResult implements ParseResult {
   // data
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
-  normalization: [number | null, number | null];
-  data: number[][][];
+  normalization: Normalization = NORMALIZATION;
+  data: (number | null)[][][];
 
   constructor(name: string, source: string, ty: FileType) {
     this.name = name;
@@ -37,10 +45,10 @@ class LSParseResult implements ParseResult {
     const datamatch = [...source.matchAll(dataregex)];
 
     if (datamatch == null) {
-      return null;
+      throw "Data not found in the file";
     }
 
-    const dataRead = datamatch.map((m) => {
+    const dataRead: number[][] = datamatch.map((m) => {
       return [parseFloat(m[1].trim()), parseFloat(m[2].trim())] as [
         number,
         number
@@ -56,23 +64,22 @@ class LSParseResult implements ParseResult {
           case FileType.LS_HYST:
             return dataRead;
         }
+        throw "Unknown type";
       })(),
     ];
 
     const unitmatch = [...source.matchAll(unitregex)][0];
 
     if (unitmatch == null) {
-      return null;
+      throw "Units not found in the file";
     }
 
     this.units = [unitmatch[1], unitmatch[2]] as [XUnits, YUnits];
     this.initUnits = this.units;
-
-    this.normalization = [null, null];
   }
 
   getPlotData() {
-    const x = this.data[0].map((v) => v[0]);
+    const x = this.data[0].map((v) => v[0]) as number[];
     const labels = this.getDataLabels();
 
     switch (this.ty) {
@@ -80,7 +87,7 @@ class LSParseResult implements ParseResult {
         return [
           {
             x,
-            y: this.data[0].map((v) => v[1]),
+            y: this.data[0].map((v) => v[1]) as number[],
             name: labels[1],
             color: PlotColor.PRIMARY,
           },
@@ -88,29 +95,32 @@ class LSParseResult implements ParseResult {
 
       case FileType.LS_DCD:
       case FileType.LS_IRM:
-        const filteredData = this.data[0].filter((v) => v[2] !== null);
+        const filteredData = this.data[0].filter(
+          (v) => v[2] !== null
+        ) as number[][];
         return [
           {
             x,
-            y: this.data[0].map((v) => v[1]),
+            y: this.data[0].map((v) => v[1]) as number[],
             name: labels[1],
             color: PlotColor.PRIMARY,
           },
           {
-            x,
+            x: filteredData.map((v) => v[0]),
             y: filteredData.map((v) => v[2]),
             name: labels[2],
             color: PlotColor.SECONDARY,
           },
         ];
     }
+    return [];
   }
 
   getDataLabels() {
     const yunits = normUnits(
       this.units[1],
-      this.normalization[0] !== null,
-      this.normalization[1] !== null
+      this.normalization.mass.enabled,
+      this.normalization.volume.enabled
     );
     switch (this.ty) {
       case FileType.LS_DCD:
@@ -122,18 +132,22 @@ class LSParseResult implements ParseResult {
         ];
 
       case FileType.LS_HYST:
-        if (this.normalization[0] !== null || this.normalization[1] !== null) {
+        if (
+          this.normalization.mass.enabled ||
+          this.normalization.volume.enabled
+        ) {
           return [`Field(${this.units[0]})`, `Magnetization(${yunits})`];
         } else {
           return [`Field(${this.units[0]})`, `Moment(${yunits})`];
         }
     }
+    return ["Err in getDataLabels()"];
   }
 }
 
 const isz = (x: number) => Math.abs(x) < 1;
 
-const cleanData = (read: [number, number][]): number[][] => {
+const cleanData = (read: [number, number][]): (number | null)[][] => {
   let i = 0;
 
   if (!isz(read[0][0])) {
