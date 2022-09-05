@@ -1,19 +1,11 @@
 import { defineConfig } from "astro/config";
-import windicss from "astro-windicss";
 import solidJs from "@astrojs/solid-js";
+import Windicss from "vite-plugin-windicss";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [windicss(), solidJs()],
+  integrations: [solidJs()],
   vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            plotly: ["plotly.js-dist-min"],
-          },
-        },
-      },
-    },
+    plugins: [Windicss()],
   },
 });

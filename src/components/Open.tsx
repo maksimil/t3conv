@@ -178,10 +178,26 @@ const Open: Component<{ setRoute: Setter<string> }> = (props) => {
     <div class="w-full h-full flex items-center justify-center bg-gray-100">
       <div
         class={
-          "w-3/5 h-3/5 bg-gray-50 rounded-3xl shadow-lg p-4 pb-2 " +
+          "w-3/5 h-4/5 bg-gray-50 rounded-3xl shadow-lg p-4 pb-2 " +
           "space-y-4 flex flex-col"
         }
       >
+        <div>
+          <div class="text-3xl font-mono font-medium text-center">
+            Hysteresis.online
+          </div>
+          <div class="space-x-4 flex flex-row justify-center">
+            <a class="text-lg font-mono hover:text-gray-400" href="/docs">
+              docs
+            </a>
+            <a
+              class="text-lg font-mono hover:text-gray-400"
+              href="https://github.com/maksimil/t3conv"
+            >
+              github&lt;3
+            </a>
+          </div>
+        </div>
         <div class="flex flex-row">
           <TypeSetter tySignal={[ty, setTy]} />
           <div class="flex-1 flex flex-row">

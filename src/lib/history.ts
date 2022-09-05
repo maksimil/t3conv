@@ -7,7 +7,7 @@ export type HistoryItem = {
 };
 
 const HS_KEY = "history";
-const HS_LENGTH = 7;
+const HS_LENGTH = 50;
 
 export const getHistory = (): HistoryItem[] => {
   const hsdata = localStorage.getItem(HS_KEY);
