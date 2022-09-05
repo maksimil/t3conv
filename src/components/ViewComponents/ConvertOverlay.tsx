@@ -1,5 +1,5 @@
 import { Component, createSignal, For } from "solid-js";
-import { XUNITS, YUNITS, XUnits, YUnits } from "../../lib/parse";
+import { XUNITS, YUNITS, XUnits, YUnits } from "@lib/parse";
 
 const ConvertOverlay: Component<{
   units: [XUnits, YUnits];

@@ -1,5 +1,5 @@
 import { Component, createSignal } from "solid-js";
-import type { ParseResult } from "../../lib/parse";
+import type { ParseResult } from "@lib/parse";
 
 const defaultFileName = (fileData: ParseResult) => fileData.name + ".csv";
 

@@ -6,8 +6,8 @@ import {
   PlotColor,
   XUnits,
   YUnits,
-} from "../parse";
-import { normUnits } from "../plot";
+} from "@lib/parse";
+import { normUnits } from "@lib/plot";
 
 export const parsePrinceton = (
   name: string,

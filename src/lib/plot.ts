@@ -17,11 +17,11 @@ export const normUnits = (
 export const plotLabels = (data: ParseResult): string[] => {
   const yunits = normUnits(
     data.units[1],
-    data.normalization[0] !== null,
-    data.normalization[1] !== null
+    data.normalization.mass.enabled,
+    data.normalization.volume.enabled
   );
 
-  if (data.normalization[0] !== null || data.normalization[1] !== null) {
+  if (data.normalization.mass.enabled || data.normalization.volume.enabled) {
     return [`Field(${data.units[0]})`, `Magnetization(${yunits})`];
   } else {
     return [`Field(${data.units[0]})`, `Moment(${yunits})`];

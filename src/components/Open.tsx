@@ -11,8 +11,8 @@ import {
   onCleanup,
   Setter,
 } from "solid-js";
-import { FileType, FILE_TYPES } from "../lib/parse";
-import { addHistory, getHistory, HistoryItem } from "../lib/history";
+import { FileType, FILE_TYPES } from "@lib/parse";
+import { addHistory, getHistory, HistoryItem } from "@lib/history";
 
 const OpenFile: Component<{ item: HistoryItem; onclick: () => void }> = (
   props

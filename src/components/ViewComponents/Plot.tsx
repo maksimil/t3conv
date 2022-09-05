@@ -7,8 +7,8 @@ import {
   createSignal,
   onCleanup,
 } from "solid-js";
-import type { ParseResult, PlotData } from "../../lib/parse";
-import { plotLabels } from "../../lib/plot";
+import type { ParseResult, PlotData } from "@lib/parse";
+import { plotLabels } from "@lib/plot";
 import type { LineMode } from "./LinemodeOverlay";
 
 const CONFIG = {

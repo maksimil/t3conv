@@ -10,16 +10,16 @@ import {
   onCleanup,
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { NORMALIZATION, ParseResult } from "../lib/parse";
-import { parseFile } from "../lib/parseFile";
-import { normalize, convertUnits, resetFormatting } from "../lib/format";
+import { NORMALIZATION, ParseResult } from "@lib/parse";
+import { parseFile } from "@lib/parseFile";
+import { normalize, convertUnits, resetFormatting } from "@lib/format";
 import ExportOverlay from "./ViewComponents/ExportOverlay";
 import ConvertOverlay from "./ViewComponents/ConvertOverlay";
 import MetaOverlay from "./ViewComponents/MetaOverlay";
 import SideBar from "./ViewComponents/SideBar";
 import NormalizeOverlay from "./ViewComponents/NormalizeOverlay";
 import LinemodeOverlay, { LineMode } from "./ViewComponents/LinemodeOverlay";
-import type { HistoryItem } from "../lib/history";
+import type { HistoryItem } from "@lib/history";
 import Plot from "./ViewComponents/Plot";
 import Overlay from "./ViewComponents/Overlay";
 

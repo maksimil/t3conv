@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import type { ParseResult } from "../../lib/parse";
+import type { ParseResult } from "@lib/parse";
 
 const MetaOverlay: Component<{ fileData: ParseResult }> = (props) => {
   return (

@@ -17,6 +17,11 @@
     "importsNotUsedAsValues": "error",
     "types": ["astro/client"],
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["./src/components/*"],
+      "@lib/*": ["./src/lib/*"]
+    }
   }
 }

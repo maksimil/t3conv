@@ -1,5 +1,5 @@
 ---
-import App from "../routes/App";
+import App from "@components/App";
 ---
 
 <html lang="en">
@@ -10,7 +10,7 @@ import App from "../routes/App";
     <title>t3conv</title>
   </head>
   <body>
-    <div slot="open" class="w-full h-full absolute">
+    <div class="w-full h-full absolute">
       <App client:only="solid-js" />
     </div>
   </body>

@@ -1,5 +1,5 @@
 import { Component, For, Switch, Match, createMemo } from "solid-js";
-import { ParseResult, XUnits, YUnits } from "../../lib/parse";
+import { ParseResult, XUnits, YUnits } from "@lib/parse";
 
 const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
   [XUnits.Oe]: (v: number) => v.toFixed(2),

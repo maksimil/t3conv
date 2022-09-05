@@ -1,6 +1,6 @@
 import { Component, createEffect } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
-import type { Normalization } from "../../lib/parse";
+import type { Normalization } from "@lib/parse";
 
 type NormalizationRow = { value: number; enabled: boolean };
 
