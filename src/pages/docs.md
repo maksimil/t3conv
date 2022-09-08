@@ -8,11 +8,11 @@ layout: "@layouts/Docs.astro"
 
 ## Main page
 
-On the main page you can see a links to **docs** (this page) and **github <3** (to the github repo of this project). Under them you can see 2 buttons: the first one specifies the type of your file. After selecting the file type you can press the **Open file** file button to open the file. Also t3conv supports history of the files. Simply press the history item to open it.
+On the main page you can see a links to **docs** (this page) and **github <3** (to the github repo of this project). Below you can see 2 buttons: the left one specifies the type of your file. After selecting the file type you can press the **Open file** button to open the file. Also t3conv supports history of the files. Simply press the history item to open it.
 
 ## View page
 
-On the view page you can see the upper row with buttons, a side bar with the data, parsed from the file, and a graph of this data.
+On the view page you can see the upper row with buttons, a side bar with the data parsed from the file, and a graph of this data.
 
 ### Open
 
