@@ -126,10 +126,7 @@ const View: Component<{
     <div ref={screenRef} class="w-full h-full">
       {/* top bar */}
       <div ref={topBarRef} class="flex flex-row px-1 pb-1 space-x-1">
-        <TopButton
-          label="Open Another file"
-          onclick={() => props.setRoute("open")}
-        />
+        <TopButton label="Open" onclick={() => props.setRoute("open")} />
         <TopButtonOverlay label="Show meta" option="meta" />
         <TopButtonOverlay label="Convert" option="convert" />
         <Show when={fileData.data[0][0].length > 2}>
