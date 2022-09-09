@@ -1,43 +1,63 @@
-import { parseLS } from "./parse/LS";
-import { parsePrinceton } from "./parse/Princeton";
+export enum XUnits {
+  Oe = "Oe",
+  Am = "A/m",
+  T = "T",
+  mT = "mT",
+}
 
-export type XUnits = "Oe" | "A/m" | "T";
-export type YUnits = "emu" | "Am2";
+export const XUNITS = Object.values(XUnits);
 
-export type ParseResult = {
+export enum YUnits {
+  emu = "emu",
+  Am2 = "Am2",
+}
+
+export const YUNITS = Object.values(YUnits);
+
+export enum PlotColor {
+  PRIMARY = 0,
+  SECONDARY = 1,
+}
+
+export type PlotData = {
+  x: number[];
+  y: number[];
+  name: string;
+  color: PlotColor;
+};
+
+export type Normalization = {
+  mass: { value: number; enabled: boolean };
+  volume: { value: number; enabled: boolean };
+};
+
+export const NORMALIZATION: Normalization = {
+  mass: { value: 1, enabled: false },
+  volume: { value: 1, enabled: false },
+};
+
+export interface ParseResult {
+  // meta
   name: string;
   meta: string;
+  ty: FileType;
+
+  // data for conversion
   units: [XUnits, YUnits];
   initUnits: [XUnits, YUnits];
-  normalization: [number | null, number | null];
-  data: number[][];
-  ty: FileType;
-};
+  normalization: Normalization;
+  data: (number | null)[][][];
+
+  // interfaces for plotting
+  getDataLabels(): string[];
+  getPlotData(): PlotData[];
+}
 
 export enum FileType {
   LS_DCD = "LS7400VSM DCD",
   LS_IRM = "LS7400VSM IRM",
   LS_HYST = "LS7400VSM Hyst",
-  PR_HYST = "Princeton Hyst",
-  PR_IRMDCD_IRM = "Princeton IRM+DCD as IRM",
-  PR_IRMDCD_DCD = "Princeton IRM+DCD as DCD",
+  PRINCETON = "Princeton",
 }
 
 export const FILE_TYPES = Object.values(FileType);
-
-export const parseFile = (
-  name: string,
-  source: string,
-  ty: FileType
-): ParseResult | null => {
-  switch (ty) {
-    case FileType.LS_DCD:
-    case FileType.LS_IRM:
-    case FileType.LS_HYST:
-      return parseLS(name, source, ty);
-    case FileType.PR_HYST:
-    case FileType.PR_IRMDCD_IRM:
-    case FileType.PR_IRMDCD_DCD:
-      return parsePrinceton(name, source, ty);
-  }
-};

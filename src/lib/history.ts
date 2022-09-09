@@ -1,4 +1,4 @@
-import { FileType } from "./parse";
+import { FileType, FILE_TYPES } from "./parse";
 
 export type HistoryItem = {
   name: string;
@@ -7,12 +7,16 @@ export type HistoryItem = {
 };
 
 const HS_KEY = "history";
-const HS_LENGTH = 10;
+const HS_LENGTH = 50;
 
 export const getHistory = (): HistoryItem[] => {
   const hsdata = localStorage.getItem(HS_KEY);
   if (hsdata != null) {
-    return JSON.parse(hsdata);
+    const hs = JSON.parse(hsdata).filter((e: HistoryItem) =>
+      FILE_TYPES.includes(e.ty)
+    );
+    localStorage.setItem(HS_KEY, JSON.stringify(hs));
+    return hs;
   } else {
     localStorage.setItem(HS_KEY, "[]");
     return [];

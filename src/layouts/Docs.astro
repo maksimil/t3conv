@@ -1,0 +1,18 @@
+---
+import "virtual:windi.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>t3conv</title>
+  </head>
+  <body>
+    <div class="px-4 pt-2 pb-20 w-200 text-justify">
+      <a href="/" class="text-lg font-mono hover:text-gray-400">main page</a>
+      <slot />
+    </div>
+  </body>
+</html>

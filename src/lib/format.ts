@@ -1,122 +1,87 @@
-import { ParseResult, XUnits, YUnits } from "./parse";
-import { SetStoreFunction } from "solid-js/store";
-import { batch } from "solid-js";
+import {
+  NORMALIZATION,
+  Normalization,
+  ParseResult,
+  XUnits,
+  YUnits,
+} from "./parse";
 
 const FPI = 4 * Math.PI;
 
 const CONVERT_PROPS = {
-  Oe: FPI * 10_000,
-  "A/m": 10_000_000,
-  T: FPI,
-  emu: 1_000,
-  Am2: 1,
+  [XUnits.Oe]: FPI * 10_000,
+  [XUnits.Am]: 10_000_000,
+  [XUnits.T]: FPI,
+  [XUnits.mT]: FPI * 1_000,
+  [YUnits.emu]: 1_000,
+  [YUnits.Am2]: 1,
 };
 
 export const convertUnits = (
   data: ParseResult,
-  setter: SetStoreFunction<ParseResult>,
   units: [XUnits, YUnits]
-) => {
+): ParseResult => {
   const convertX = CONVERT_PROPS[units[0]] / CONVERT_PROPS[data.units[0]];
   const convertY = CONVERT_PROPS[units[1]] / CONVERT_PROPS[data.units[1]];
   const convertMask = [convertX, convertY, convertY];
 
-  setter("units", units);
+  data.units = units;
 
-  for (let i = 0; i < data.data.length; i++) {
-    for (let j = 0; j < data.data[i].length; j++) {
-      setter("data", i, j, (d) => (d !== null ? d * convertMask[j] : null));
+  for (let k = 0; k < data.data.length; k++) {
+    for (let i = 0; i < data.data[k].length; i++) {
+      for (let j = 0; j < data.data[k][i].length; j++) {
+        const d = data.data[k][i][j];
+        data.data[k][i][j] = d !== null ? d * convertMask[j] : null;
+      }
     }
   }
+
+  return data;
+};
+
+const MASS_MULTS = { [YUnits.emu]: 1_000, [YUnits.Am2]: 1_000_000 };
+const VOLUME_MULTS = { [YUnits.emu]: 1, [YUnits.Am2]: 1_000_000 };
+
+const normMul = (norm: Normalization, units: YUnits) => {
+  let massMul = 1;
+  let volumeMul = 1;
+
+  if (norm.mass.enabled) {
+    massMul = norm.mass.value / MASS_MULTS[units];
+  }
+
+  if (norm.volume.enabled) {
+    volumeMul = norm.volume.value / VOLUME_MULTS[units];
+  }
+
+  return massMul * volumeMul;
 };
 
 export const normalize = (
   data: ParseResult,
-  setter: SetStoreFunction<ParseResult>,
-  mass: number | null,
-  volume: number | null
-) => {
-  const [nmass, imass] = (() => {
-    if (mass === null) {
-      return [1, false];
-    } else {
-      switch (data.units[1]) {
-        // from mg to g
-        case "emu":
-          return [mass / 1_000, true];
-        // from mg to kg
-        case "Am2":
-          return [mass / 1_000_000, true];
-      }
-    }
-  })();
-
-  const [nvolume, ivolume] = (() => {
-    if (volume === null) {
-      return [1, false];
-    } else {
-      switch (data.units[1]) {
-        // from cm3 to cm3
-        case "emu":
-          return [volume, true];
-        // from cm3 to m3
-        case "Am2":
-          return [volume / 1_000_000, true];
-      }
-    }
-  })();
-
-  const null1 = (v: number) => (v === null ? 1 : v);
-
+  normalization: Normalization
+): ParseResult => {
   const ddiv =
-    (null1(data.normalization[0]) * null1(data.normalization[1])) /
-    (nvolume * nmass);
+    normMul(data.normalization, data.units[1]) /
+    normMul(normalization, data.units[1]);
 
-  for (let i = 0; i < data.data.length; i++) {
-    for (let j = 1; j < data.data[i].length; j++) {
-      setter("data", i, j, (d) => d * ddiv);
+  for (let k = 0; k < data.data.length; k++) {
+    for (let i = 0; i < data.data[k].length; i++) {
+      for (let j = 1; j < data.data[k][i].length; j++) {
+        if (data.data[k][i][j] !== null) {
+          data.data[k][i][j] = (data.data[k][i][j] as number) * ddiv;
+        }
+      }
     }
   }
 
-  setter("normalization", [imass ? nmass : null, ivolume ? nvolume : null]);
+  data.normalization = normalization;
+
+  return data;
 };
 
-export const normValues = (data: ParseResult): [number, number] => {
-  const mass = (() => {
-    if (data.normalization[0] === null) {
-      return null;
-    }
-
-    switch (data.units[1]) {
-      case "emu":
-        return data.normalization[0] * 1_000;
-      case "Am2":
-        return data.normalization[0] * 1_000_000;
-    }
-  })();
-
-  const volume = (() => {
-    if (data.normalization[1] === null) {
-      return null;
-    }
-
-    switch (data.units[1]) {
-      case "emu":
-        return data.normalization[1];
-      case "Am2":
-        return data.normalization[1] * 1_000_000;
-    }
-  })();
-
-  return [mass, volume];
-};
-
-export const resetFormatting = (
-  data: ParseResult,
-  setter: SetStoreFunction<ParseResult>
-) => {
-  batch(() => {
-    normalize(data, setter, null, null);
-    convertUnits(data, setter, data.initUnits);
-  });
+export const resetFormatting = (data: ParseResult): ParseResult => {
+  data = normalize(data, NORMALIZATION);
+  data = convertUnits(data, data.initUnits);
+  return data;
 };

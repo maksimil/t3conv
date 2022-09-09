@@ -1,13 +1,13 @@
 import { Component, For, Switch, Match, createMemo } from "solid-js";
-import { ParseResult, XUnits, YUnits } from "../../lib/parse";
-import { dataLabels } from "../../lib/plot";
+import { ParseResult, XUnits, YUnits } from "@lib/parse";
 
 const CONVERT_FNS: Record<XUnits | YUnits, (v: number) => string> = {
-  Oe: (v: number) => v.toFixed(2),
-  "A/m": (v: number) => v.toFixed(0),
-  T: (v: number) => v.toFixed(4),
-  emu: (v: number) => v.toExponential(5),
-  Am2: (v: number) => v.toExponential(5),
+  [XUnits.Oe]: (v: number) => v.toFixed(2),
+  [XUnits.Am]: (v: number) => v.toFixed(0),
+  [XUnits.T]: (v: number) => v.toFixed(4),
+  [XUnits.mT]: (v: number) => v.toFixed(2),
+  [YUnits.emu]: (v: number) => v.toExponential(5),
+  [YUnits.Am2]: (v: number) => v.toExponential(5),
 };
 
 export const convertMask = (data: ParseResult): ((v: number) => string)[] => [
@@ -24,7 +24,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
       <table class="border-separate" style="border-spacing:0;">
         <thead class="sticky top-0 z-2 bg-green-100">
           <tr class="divide-x divide-gray-400">
-            <For each={dataLabels(props.fileData)}>
+            <For each={props.fileData.getDataLabels()}>
               {(lbl) => (
                 <th
                   class={
@@ -39,8 +39,8 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
           </tr>
         </thead>
         <tbody>
-          <For each={props.fileData.data}>
-            {(row, rowi) => (
+          <For each={props.fileData.data.flat(1)}>
+            {(row) => (
               <tr class="divide-x divide-gray-400 ">
                 <For each={row}>
                   {(x, i) => (
@@ -49,7 +49,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
                         <td
                           class={
                             "pt-1 px-1 text-right " +
-                            (rowi() > 0 ? "border-t-1 border-gray-400 " : "")
+                            "border-b-1 border-gray-400 "
                           }
                         >
                           {maskMemo()[i()](x)}
@@ -59,7 +59,7 @@ const SideBar: Component<{ fileData: ParseResult }> = (props) => {
                         <td
                           class={
                             "bg-red-100 pt-1 px-1 text-right " +
-                            (rowi() > 0 ? "border-t-1 border-gray-400 " : "")
+                            "border-b-1 border-gray-400 "
                           }
                         >
                           -
