@@ -60,6 +60,64 @@ const splitMeta = (meta: string): string[] => {
   return data;
 };
 
+const META_NAMES = [
+  "Datafile type",
+  "",
+  "",
+  "Averaging time in seconds",
+  "",
+  "",
+  "Applied field",
+  "Step size",
+  "",
+  "Max field in units from field header",
+  "",
+  "Number of remanance measurement points",
+  "N turnaround",
+  "Number of datapoints",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "Comment",
+  "",
+  "",
+  "",
+  "Temperature",
+  "Date time",
+  "Temperature units 0=Kelvin, -1=Celcius",
+  "Field and moment units: 0=cgs, 1=SI, 2=Hybrid SI",
+  "",
+  "experiment type: 0=single temp loop, 1=m(t), " +
+    "2=loops v. orientation, 3=loops v. temp., 4=DCDemag (Hcr)",
+  "",
+  "",
+  "",
+];
+
+const META_SEPARATOR = "  ";
+
+const formatMetaLabel = (label: string): string =>
+  `<code class="text-red-600">${label}</code>`;
+
+const genMeta = (meta: string[]): string => {
+  let output = "<pre>This metadata was generated automatically\n</pre>";
+
+  const metaLength = Math.max(...meta.map((v) => v.length));
+  const formattedMeta = meta.map((v) => v.padEnd(metaLength));
+
+  for (let i = 0; i < meta.length; i++) {
+    output +=
+      "\n" + formattedMeta[i] + META_SEPARATOR + formatMetaLabel(META_NAMES[i]);
+  }
+
+  return output;
+};
+
 const UNITS: { [name: string]: [XUnits, YUnits] } = {
   "Hybrid SI": [XUnits.T, YUnits.Am2],
   SI: [XUnits.Am, YUnits.Am2],
@@ -91,10 +149,10 @@ class PrincetonParseResult implements ParseResult {
         .slice(0, rest.length - 2)
         .map((line) => line.split(",").map(parseFloat));
 
-      this.name = name;
-      this.meta = meta;
-      this.ty = ty;
       const metadata = splitMeta(meta);
+      this.name = name;
+      this.meta = genMeta(metadata);
+      this.ty = ty;
 
       // units
       this.units = [UNITS["cgs"], UNITS["SI"], UNITS["Hybrid SI"]][

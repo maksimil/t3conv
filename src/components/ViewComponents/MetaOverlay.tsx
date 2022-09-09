@@ -9,7 +9,7 @@ const MetaOverlay: Component<{ fileData: ParseResult }> = (props) => {
         "shadow-md border-solid border-1 border-gray-500 "
       }
     >
-      <pre>{props.fileData.meta}</pre>
+      <pre innerHTML={props.fileData.meta}></pre>
     </div>
   );
 };
