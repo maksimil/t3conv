@@ -2,6 +2,7 @@ import { parseLS } from "./parse/LS";
 import { parsePrinceton } from "./parse/Princeton";
 import { convertUnits } from "./format";
 import { FileType, ParseResult, XUnits } from "./parse";
+import { parseCSV } from "./parse/csv";
 
 export const parseFile = (
   name: string,
@@ -18,6 +19,8 @@ export const parseFile = (
           return parseLS(name, source, ty);
         case FileType.PRINCETON:
           return parsePrinceton(name, source, ty);
+        case FileType.CSV:
+          return parseCSV(name, source, ty);
       }
     })();
 
@@ -29,6 +32,6 @@ export const parseFile = (
 
     return [res, null];
   } catch (err) {
-    return [null, err.message];
+    return [null, err];
   }
 };

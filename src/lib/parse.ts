@@ -58,6 +58,7 @@ export enum FileType {
   LS_IRM = "LS7400VSM IRM",
   LS_HYST = "LS7400VSM Hyst",
   PRINCETON = "Princeton",
+  CSV = "CSV",
 }
 
 export const FILE_TYPES = Object.values(FileType);
